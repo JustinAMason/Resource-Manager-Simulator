@@ -11,7 +11,7 @@ function getTasks(args) {
 	const initiations = getInitiations(data.split("\n"));
 	const activities = getAllActivities(data.split("\n"));
 	const numTasks = getNumTasks(data.split("\n"));
-	const tasks = createTasks({"numTasks": numTasks, "initiations": initiations, "activities": activities});
+	const tasks = createTasks({numTasks, initiations, activities});
 	showTasksState({tasks});
 	return(tasks);
 }
