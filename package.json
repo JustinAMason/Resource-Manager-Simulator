@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/JustinAMason/Resource-Manager-Simulator#readme",
   "dependencies": {
-    "eslint": "^5.1.0"
+    "eslint": "^5.1.0",
+    "resolve-path": "^1.4.0"
   }
 }
