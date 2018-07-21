@@ -7,7 +7,6 @@ const Queue = require(__dirname + "/task_handling/queue.js");
 
 const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
 
-const resultsLogger = new Logger({"detailed_output": true});
 const detailsLogger = new Logger(commandLineConfig);
 
 const resources = resources_reader.getResources(commandLineConfig);
