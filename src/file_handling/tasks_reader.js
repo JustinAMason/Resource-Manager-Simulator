@@ -12,7 +12,38 @@ function getTasks(args) {
 	const activities = getAllActivities(data.split("\n"));
 	const numTasks = getNumTasks(data.split("\n"));
 	const tasks = createTasks({"numTasks": numTasks, "initiations": initiations, "activities": activities});
+	showTasksState({tasks});
 	return(tasks);
+}
+
+function showTasksState(config) {
+
+	const tasks = config["tasks"];
+	const version = config["version"] ? config["version"] : "condensed";
+
+	Object.keys(tasks).forEach(function(taskID) {
+
+		const task = tasks[taskID];
+		let output = `Task #${taskID} needs `;
+
+		Object.keys(task).forEach(function(resourceID) {
+
+			const resource = task[resourceID];
+			output += (output === `Task #${taskID} needs `) ? "" : ", ";
+
+			if (version === "condensed") {
+				output += `${resource["needs"]} of R${resourceID} (has ${resource["has"]})`;
+			} else {
+				output += `${resource["needs"]} units of Resource #${resourceID} (has ${resource["has"]})`;
+			}
+			
+		});
+
+		output += ".";
+		console.log(output);
+
+	});
+
 }
 
 function getInitiations(data) {
@@ -76,19 +107,4 @@ function createTasks(config) {
 
 	return(tasks);
 
-}
-
-function showTasksState(tasks) {
-
-	Object.keys(tasks).forEach(function(taskID) {
-
-		const task = tasks[taskID];
-		console.log(`Task #${taskID}:`);
-
-		Object.keys(task).forEach(function(resourceID) {
-			const resource = task[resourceID];
-			console.log(`\tNeeds ${resource["needs"]} units of Resource #${resourceID} (has ${resource["has"]})`);
-		});
-
-	});
 }

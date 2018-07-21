@@ -10,3 +10,5 @@ const detailsLogger = new Logger(commandLineConfig);
 
 const resources = resources_reader.getResources(commandLineConfig);
 const tasks = tasks_reader.getTasks(commandLineConfig);
+
+console.log();
