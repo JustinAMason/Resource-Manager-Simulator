@@ -26,6 +26,7 @@ function logConfiguration(file, detailedOutput) {
 
 	const outputVersion = (detailedOutput) ? "Detailed Output" : "Results Only";
 
+	console.log();
 	console.log(`FILE USED: ${file}`);
 	console.log(`OUTPUT VERSION: ${outputVersion}`);
 	console.log();
