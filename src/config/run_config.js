@@ -15,7 +15,7 @@ function getConfig(args) {
 }
 
 function getFile(arg) {
-	return(arg ? arg : path.resolve(__dirname, "../../txt/input-01.txt"));
+	return(arg ? arg : path.resolve(__dirname, "../../sample_inputs/input-01.txt"));
 }
 
 function getDetailedOutput(arg) {
