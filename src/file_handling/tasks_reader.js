@@ -27,13 +27,17 @@ function showTasksState(config) {
 
 		Object.keys(task).forEach(function(resourceID) {
 
-			const resource = task[resourceID];
-			output += (output === `Task #${taskID} needs `) ? "" : ", ";
+			if (resourceID !== "activities") {
 
-			if (version === "condensed") {
-				output += `${resource["needs"]} of R${resourceID} (has ${resource["has"]})`;
-			} else {
-				output += `${resource["needs"]} units of Resource #${resourceID} (has ${resource["has"]})`;
+				const resource = task[resourceID];
+				output += (output === `Task #${taskID} needs `) ? "" : ", ";
+
+				if (version === "condensed") {
+					output += `${resource["needs"]} of R${resourceID} (has ${resource["has"]})`;
+				} else {
+					output += `${resource["needs"]} units of Resource #${resourceID} (has ${resource["has"]})`;
+				}
+
 			}
 			
 		});
@@ -102,6 +106,8 @@ function createTasks(config) {
 			"needs": +resourceClaim,
 			"has": 0
 		};
+
+		tasks[taskID]["activities"] = [];
 
 	});
 
