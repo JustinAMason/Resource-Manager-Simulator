@@ -1,0 +1,23 @@
+{
+  "name": "resource-manager-simulator",
+  "version": "1.0.0",
+  "description": "Personal refactoring project of a resource management simulator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "project": "echo \"Shut up\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustinAMason/Resource-Manager-Simulator.git"
+  },
+  "author": "Justin Mason",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JustinAMason/Resource-Manager-Simulator/issues"
+  },
+  "homepage": "https://github.com/JustinAMason/Resource-Manager-Simulator#readme",
+  "dependencies": {
+    "eslint": "^5.1.0"
+  }
+}
