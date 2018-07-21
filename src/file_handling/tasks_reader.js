@@ -12,7 +12,6 @@ function getTasks(args) {
 	const activities = getAllActivities(data.split("\n"));
 	const numTasks = getNumTasks(data.split("\n"));
 	const tasks = createTasks({numTasks, initiations, activities});
-	showTasksState({tasks});
 	return(tasks);
 }
 
@@ -40,6 +39,7 @@ function showTasksState(config) {
 		});
 
 		output += ".";
+
 		console.log(output);
 
 	});
