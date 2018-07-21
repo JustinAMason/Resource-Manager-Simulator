@@ -108,6 +108,10 @@ function createTasks(config) {
 		};
 
 		tasks[taskID]["activities"] = [];
+		tasks[taskID]["delay"] = 0;
+		tasks[taskID]["time"] = 0;
+		tasks[taskID]["wait"] = 0;
+		tasks[taskID]["status"] = "ready";
 
 	});
 
