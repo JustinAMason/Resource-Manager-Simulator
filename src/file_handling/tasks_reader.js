@@ -18,7 +18,6 @@ function getTasks(args) {
 function showTasksState(config) {
 
 	const tasks = config["tasks"];
-	const version = config["version"] ? config["version"] : "condensed";
 
 	Object.keys(tasks).forEach(function(taskID) {
 
@@ -32,11 +31,7 @@ function showTasksState(config) {
 				const resource = task[resourceID];
 				output += (output === `Task #${taskID} needs `) ? "" : ", ";
 
-				if (version === "condensed") {
-					output += `${resource["needs"]} of R${resourceID} (has ${resource["has"]})`;
-				} else {
-					output += `${resource["needs"]} units of Resource #${resourceID} (has ${resource["has"]})`;
-				}
+				output += `${resource["needs"]} of R${resourceID} (has ${resource["has"]})`;
 
 			}
 			
