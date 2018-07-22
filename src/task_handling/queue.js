@@ -20,6 +20,10 @@ class Queue {
 		return(this.queue.length == 0);
 	}
 
+	size() {
+		return(this.queue.length);
+	}
+
 	toString() {
 		console.log(typeof this.queue);
 		console.log("" + this.queue);
