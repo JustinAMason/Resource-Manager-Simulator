@@ -49,10 +49,16 @@ const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-dis
 const detailsLogger = new Logger(commandLineConfig);
 const resources = resources_reader.getResources(commandLineConfig);
 
-let tasks = tasks_reader.getTasks(commandLineConfig);
-tasks = activities_reader.addActivitiesToTasks({commandLineConfig, tasks});
+let optimisticTasks = tasks_reader.getTasks(commandLineConfig);
+optimisticTasks = activities_reader.addActivitiesToTasks({commandLineConfig, "tasks": optimisticTasks});
 
-const queue = new Queue(tasks);
+let bankerTasks = tasks_reader.getTasks(commandLineConfig);
+bankerTasks = activities_reader.addActivitiesToTasks({commandLineConfig, "tasks": bankerTasks});
 
-run();
-showResults(tasks);
+const optimisticQueue = new Queue(optimisticTasks);
+const bankerQueue = new Queue(bankerTasks);
+
+const optimisticManager = new OptimisticManager({detailsLogger, resources, "queue": optimisticQueue, "tasks": optimisticTasks});
+optimisticManager.run();
+
+showResults(optimisticTasks);
