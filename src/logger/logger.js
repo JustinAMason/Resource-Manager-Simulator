@@ -5,19 +5,19 @@ module.exports =
 class Logger {
 
 	constructor(args) {
-		this.detailedOutput = args["detailed_output"] ? args["detailed_output"] : false;
+		this.showOutput = args["show_output"] ? args["show_output"] : false;
 		this.lineLength = args["line_length"] ? args["line_length"] : 70;
 	}
 
 	log(output) {
-		if (this.detailedOutput) {
+		if (this.showOutput) {
 			output = output ? output : "";
 			console.log(output);
 		}
 	}
 
 	logHeader(header) {
-		if (this.detailedOutput) {
+		if (this.showOutput) {
 			const line = "=".repeat((this.lineLength - header.length) / 2);
 			let output = line + header.toUpperCase() + line;
 			if (output.length < 70) {
@@ -29,19 +29,19 @@ class Logger {
 	}
 
 	logHeaderBreak() {
-		if (this.detailedOutput) {
+		if (this.showOutput) {
 			console.log("=".repeat(this.lineLength));
 		}
 	}
 
 	logLine() {
-		if (this.detailedOutput) {
+		if (this.showOutput) {
 			console.log("-".repeat(this.lineLength / 2));
 		}
 	}
 
 	showTasksState(tasks) {
-		if (this.detailedOutput) {
+		if (this.showOutput) {
 			tasks_reader.showTasksState({tasks});
 		}
 	}

@@ -6,11 +6,11 @@ module.exports = {
 
 function getConfig(args) {
 	const file = getFile(args[2]);
-	const detailedOutput = getDetailedOutput(args[3]);
-	logConfiguration(file, detailedOutput);
+	const showOutput = getShowOutput(args[3]);
+	logConfiguration(file, showOutput);
 	return {
 		"file": file,
-		"detailed_output": detailedOutput
+		"show_output": showOutput
 	};
 }
 
@@ -18,13 +18,13 @@ function getFile(arg) {
 	return(arg ? arg : path.resolve(__dirname, "../../sample_inputs/input-01.txt"));
 }
 
-function getDetailedOutput(arg) {
+function getShowOutput(arg) {
 	return(arg ? true : false);
 }
 
-function logConfiguration(file, detailedOutput) {
+function logConfiguration(file, showOutput) {
 
-	const outputVersion = (detailedOutput) ? "Detailed Output" : "Results Only";
+	const outputVersion = (showOutput) ? "Detailed Output" : "Results Only";
 
 	console.log();
 	console.log(`FILE USED: ${file}`);
