@@ -11,6 +11,7 @@ class Logger {
 
 	log(output) {
 		if (this.detailedOutput) {
+			output = output ? output : "";
 			console.log(output);
 		}
 	}

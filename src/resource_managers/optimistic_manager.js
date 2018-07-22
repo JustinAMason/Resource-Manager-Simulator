@@ -1,3 +1,5 @@
+// TODO: Change logic of initiation (it appears that initiations are not combined into one cycle)
+
 const ResourceManager = require(__dirname + "/resource_manager.js");
 
 module.exports =
@@ -18,20 +20,13 @@ class OptimisticManager extends ResourceManager {
 
 		if (unitsRequested <= this.resources[resourceID]) {
 			this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
-			this.logger.log(`Task #${taskID} granted ${unitsRequested} R${resourceID}`);
+			this.logger.log(`${this.curCycle}: Task #${taskID} granted ${unitsRequested} R${resourceID}`);
 		} else {
 			task["status"] = "blocked";
-			this.logger.log(`Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
+			task["wait"] += 1;
+			this.logger.log(`${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
 		}
-		
-	}
 
-	release(taskID) {
-		console.log("RELEASE");
-	}
-
-	terminate() {
-		console.log("TERMINATE");
 	}
 
 };

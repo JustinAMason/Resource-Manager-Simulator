@@ -3,6 +3,7 @@ const activities_reader = require(__dirname + "/file_handling/activities_reader.
 const resources_reader = require(__dirname + "/file_handling/resources_reader.js");
 const tasks_reader = require(__dirname + "/file_handling/tasks_reader.js");
 const Logger = require(__dirname + "/logger/logger.js");
+const OptimisticManager = require(__dirname + "/resource_managers/optimistic_manager.js");
 const Queue = require(__dirname + "/task_handling/queue.js");
 
 const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
@@ -15,5 +16,11 @@ let tasks = tasks_reader.getTasks(commandLineConfig);
 tasks = activities_reader.addActivitiesToTasks({commandLineConfig, tasks});
 
 const queue = new Queue(tasks);
+
+const optimistic = new OptimisticManager({detailsLogger, resources, queue, tasks});
+
+optimistic.run();
+
+console.log(tasks);
 
 console.log();
