@@ -20,7 +20,7 @@ function getActivitiesData(data) {
 
 	data = data.filter(function(activity) {
 		const activityType = activity.split(" ")[0];
-		return activityType !== "initiate" && activityType !== "";
+		return activityType !== "";
 	});
 
 	return(data);
@@ -42,25 +42,17 @@ function getActivities(activitiesLog) {
 		const taskID = activityData[1];
 		const delay = activityData[2];
 
-		if (action !== "terminate") {
-			const resourceID = activityData[3];
-			const quantity = activityData[4];
-			activities.push({
-				"activityID": activityID,
-				"action": action,
-				"taskID": taskID,
-				"delay": delay,
-				"resourceID": resourceID,
-				"quantity": quantity
-			});
-		} else {
-			activities.push({
-				"activityID": activityID,
-				"action": action,
-				"taskID": taskID,
-				"delay": delay,
-			});
-		}
+		const resourceID = activityData[3];
+		const quantity = activityData[4];
+
+		activities.push({
+			"activityID": activityID,
+			"action": action,
+			"taskID": taskID,
+			"delay": delay,
+			"resourceID": resourceID,
+			"quantity": quantity
+		});
 
 		activityID += 1;
 

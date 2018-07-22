@@ -17,9 +17,6 @@ class ResourceManager {
 	run() {
 
 		this.logger.logHeader(this.header);
-
-		this.showInitiation(this.queue.size());
-		this.curCycle += 1;
 		this.logger.log();
 
 		while (!this.queue.isEmpty()) {
@@ -54,6 +51,7 @@ class ResourceManager {
 
 		/* eslint-disable indent */
 		switch (action) {
+			case "initiate": this.initiate(taskID); break;
 			case "request": this.request(activity); break;
 			case "release": this.release(activity); break;
 			case "terminate": this.terminate(activity); break;
@@ -67,6 +65,10 @@ class ResourceManager {
 		this.updateQueues(taskID);
 		this.updateStatus(taskID);
 
+	}
+
+	initiate(taskID) {
+		this.logger.log(`Task #${taskID} initiated`);
 	}
 
 	request(action) {
@@ -170,16 +172,6 @@ class ResourceManager {
 		Object.keys(this.pendingResources).forEach(function(resourceID) {
 			pendingResources[resourceID] = 0;
 		});
-
-	}
-
-	showInitiation(numTasks) {
-
-		this.showResourcesAvailable();
-
-		for (let i = 1; i <= numTasks; i++) {
-			this.logger.log(`${this.curCycle}: Task #${i} initiated`);
-		}
 
 	}
 

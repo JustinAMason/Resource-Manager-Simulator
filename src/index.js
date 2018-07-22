@@ -21,6 +21,4 @@ const optimistic = new OptimisticManager({detailsLogger, resources, queue, tasks
 
 optimistic.run();
 
-console.log(tasks);
-
 console.log();
