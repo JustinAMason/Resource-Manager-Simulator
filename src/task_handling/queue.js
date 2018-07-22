@@ -16,6 +16,14 @@ class Queue {
 		return taskID;
 	}
 
+	set(queue) {
+		this.queue = queue;
+	}
+
+	getSortedTaskIDs() {
+		return this.queue.slice().sort();
+	}
+
 	isEmpty() {
 		return(this.queue.length == 0);
 	}

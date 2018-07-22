@@ -24,7 +24,13 @@ class ResourceManager {
 			this.showResourcesAvailable();
 
 			while (!this.queue.isEmpty()) {
+
 				this.runCycle();
+
+				if (this.deadlocked()) {
+					this.handleDeadlock();
+				}
+
 			}
 
 			this.curCycle += 1;
@@ -97,19 +103,6 @@ class ResourceManager {
 
 	}
 
-	terminate(action) {
-
-		const taskID = action["taskID"];
-		const task = this.tasks[taskID];
-
-		if (task["status"] === "blocked") {
-			this.handleBlock(task);
-		} else {
-			this.handleTermination(action);
-		}
-
-	}
-
 	handleRelease(action) {
 
 		const taskID = action["taskID"];
@@ -127,6 +120,19 @@ class ResourceManager {
 
 	}
 
+	terminate(action) {
+
+		const taskID = action["taskID"];
+		const task = this.tasks[taskID];
+
+		if (task["status"] === "blocked") {
+			this.handleBlock(task);
+		} else {
+			this.handleTermination(action);
+		}
+
+	}
+
 	handleTermination(action) {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
@@ -135,6 +141,16 @@ class ResourceManager {
 		task["time"] = this.curCycle;
 		this.logger.log(`${this.curCycle}: Task #${taskID} has been terminated`);
 
+	}
+
+	abort(taskID) {
+		const task = this.tasks[taskID];
+		task["status"] = "aborted";
+		this.releaseResources(taskID);
+	}
+
+	deadlocked() {
+		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
 	}
 
 	handleBlock(task) {
@@ -156,6 +172,23 @@ class ResourceManager {
 		} else if (recipient === "manager") {
 			task[resourceID]["has"] -= quantity;
 			this.pendingResources[resourceID] = quantity;
+		}
+
+	}
+
+	releaseResources(taskID) {
+
+		const task = this.tasks[taskID];
+		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
+
+		const resourceIDs = Object.keys(task).filter(function(key) {
+			return !keysToIgnore.includes(key);
+		});
+
+		for (let i = 0; i < resourceIDs.length; i++) {
+			const resourceID = resourceIDs[i];
+			const unitsToRelease = task[resourceID]["has"];
+			this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsToRelease});
 		}
 
 	}

@@ -1,5 +1,3 @@
-// TODO: Change logic of initiation (it appears that initiations are not combined into one cycle)
-
 const ResourceManager = require(__dirname + "/resource_manager.js");
 
 module.exports =
@@ -7,7 +5,7 @@ module.exports =
 class OptimisticManager extends ResourceManager {
 
 	constructor(config) {
-		super(config); // logger, queue, tasks, resources, blockedQueue, nonblockedQueue, curCycle
+		super(config);
 		this.header = "Optimistic Resource Manager Simulation";
 	}
 
@@ -26,6 +24,21 @@ class OptimisticManager extends ResourceManager {
 			task["wait"] += 1;
 			this.logger.log(`${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
 		}
+
+	}
+
+	handleDeadlock() {
+
+		const taskIDs = this.blockedQueue.getSortedTaskIDs();
+
+		while (taskIDs.length > 1) {
+			const taskID = taskIDs[0];
+			this.abort(taskID);
+			taskIDs.shift();
+			this.logger.log(`${this.curCycle}: DEADLOCK! Task #${taskID} aborted`);
+		}
+
+		this.blockedQueue.set(taskIDs);
 
 	}
 
