@@ -22,15 +22,13 @@ class ResourceManager {
 		while (!this.queue.isEmpty()) {
 
 			this.showResourcesAvailable();
-
+			
 			while (!this.queue.isEmpty()) {
-
 				this.runCycle();
+			}
 
-				if (this.deadlocked()) {
-					this.handleDeadlock();
-				}
-
+			if (this.deadlocked()) {
+				this.handleDeadlock();
 			}
 
 			this.curCycle += 1;
@@ -170,8 +168,15 @@ class ResourceManager {
 			task[resourceID]["needs"] -= quantity;
 			this.resources[resourceID] -= quantity;
 		} else if (recipient === "manager") {
+
 			task[resourceID]["has"] -= quantity;
-			this.pendingResources[resourceID] = quantity;
+
+			if (!this.pendingResources[resourceID]) {
+				this.pendingResources[resourceID] = 0;
+			}
+
+			this.pendingResources[resourceID] += quantity;
+
 		}
 
 	}
