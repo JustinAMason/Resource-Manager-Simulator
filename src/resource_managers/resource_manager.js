@@ -68,7 +68,7 @@ class ResourceManager {
 	}
 
 	initiate(taskID) {
-		this.logger.log(`Task #${taskID} initiated`);
+		this.logger.log(`${this.curCycle}: Task #${taskID} initiated`);
 	}
 
 	request(action) {
