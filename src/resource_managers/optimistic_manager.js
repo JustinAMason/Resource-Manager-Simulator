@@ -5,91 +5,33 @@ module.exports =
 class OptimisticManager extends ResourceManager {
 
 	constructor(config) {
-		super(config); // logger, queue, tasks, resources
+		super(config); // logger, queue, tasks, resources, blockedQueue, nonblockedQueue, curCycle
+		this.header = "Optimistic Resource Manager Simulation";
 	}
 
-	run() {
+	handleRequest(action) {
 
-		let curCycle = 1;
-
-		this.logger.logHeader("Optimistic Resource Manager Simulation");
-
-		while (!this.queue.isEmpty()) {
-
-			this.showResourcesAvailable();
-
-			for (let i = 0; i < this.queue.size(); i++) {
-				this.runCycle();
-			}
-
-			console.log();
-
-		}
-
-		this.logger.logHeaderBreak();
-
-	}
-
-	runCycle() {
-
-		const taskID = this.queue.remove();
+		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
-		const activities = task["activities"];
-		const activity = activities[0];
-		const action = activity["action"];
+		const resourceID = action["resourceID"];
+		const unitsRequested = action["quantity"];
 
-		/* eslint-disable indent */
-		switch (action) {
-			case "request": this.request(); break;
-			case "release": this.release(); break;
-			case "terminate": this.terminate(); break;
-			default: break;
-		}
-
-		activities.shift();
-
-		this.updateTasks(taskID);
-
-	}
-
-	updateTasks(taskID) {
-
-		const task = this.tasks[taskID];
-		const activities = task["activities"];
-
-		if (activities.length == 0) {
-			delete this.tasks[taskID];
+		if (unitsRequested <= this.resources[resourceID]) {
+			this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
+			this.logger.log(`Task #${taskID} granted ${unitsRequested} R${resourceID}`);
 		} else {
-			this.queue.add(taskID);
+			task["status"] = "blocked";
+			this.logger.log(`Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
 		}
-
+		
 	}
 
-	request() {
-		console.log("REQUEST");
-	}
-
-	release() {
+	release(taskID) {
 		console.log("RELEASE");
 	}
 
 	terminate() {
 		console.log("TERMINATE");
-	}
-
-	showResourcesAvailable() {
-
-		const resources = this.resources;
-
-		let output = "AVAILABLE: ";
-		Object.keys(this.resources).forEach(function(resourceID) {
-			output += output === "AVAILABLE: " ? "": ", ";
-			output += `R${resourceID} (${resources[resourceID]})`;
-		});
-
-		this.logger.log(output);
-		this.logger.logLine();
-		
 	}
 
 };
