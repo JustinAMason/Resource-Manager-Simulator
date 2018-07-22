@@ -3,8 +3,10 @@ module.exports =
 class ResourceManager {
 
 	constructor(config) {
-		const logger = config["logger"];
-		const queue = config["queue"];
+		this.resources = config["resources"];
+		this.logger = config["detailsLogger"];
+		this.queue = config["queue"];
+		this.tasks = config["tasks"];
 	}
 
 };
