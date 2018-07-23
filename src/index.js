@@ -3,6 +3,7 @@ const activities_reader = require(__dirname + "/file_handling/activities_reader.
 const resources_reader = require(__dirname + "/file_handling/resources_reader.js");
 const tasks_reader = require(__dirname + "/file_handling/tasks_reader.js");
 const Logger = require(__dirname + "/logger/logger.js");
+const BankerManager = require(__dirname + "/resource_managers/dijkstra_banker_manager.js");
 const OptimisticManager = require(__dirname + "/resource_managers/optimistic_manager.js");
 const Queue = require(__dirname + "/task_handling/queue.js");
 
@@ -11,12 +12,15 @@ function run() {
 	optimistic.run();
 }
 
-function showResults(tasks) {
+function showResults(config) {
+
+	const tasks = config["tasks"];
+	const manager_type = config["manager_type"];
 
 	const resultsLogger = new Logger({"show_output": true});
 
 	resultsLogger.log();
-	resultsLogger.logHeader("Optimistic Resource Manager Results");
+	resultsLogger.logHeader(`${manager_type} Resource Manager Results`);
 
 	let completionTime = 0;
 	let numAbortions = 0;
@@ -63,4 +67,8 @@ const bankerQueue = new Queue(bankerTasks);
 const optimisticManager = new OptimisticManager({detailsLogger, resources, "queue": optimisticQueue, "tasks": optimisticTasks});
 optimisticManager.run();
 
-showResults(optimisticTasks);
+const bankerManager = new BankerManager({detailsLogger, resources, "queue": bankerQueue, "tasks": bankerTasks});
+bankerManager.run();
+
+showResults({"tasks": optimisticTasks, "manager_type": "Optimistic"});
+showResults({"tasks": bankerTasks, "manager_type": "Dijkstra's Banker"});
