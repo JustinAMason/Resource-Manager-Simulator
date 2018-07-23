@@ -161,8 +161,19 @@ class ResourceManager {
 		this.releaseResources(taskID);
 	}
 
-	deadlocked() {
-		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
+	handleDeadlock() {
+
+		const taskIDs = this.blockedQueue.getSortedTaskIDs();
+
+		while (taskIDs.length > 1) {
+			const taskID = taskIDs[0];
+			this.abort(taskID);
+			taskIDs.shift();
+			this.logger.log(`${this.curCycle}: DEADLOCK! Task #${taskID} aborted`);
+		}
+
+		this.blockedQueue.set(taskIDs);
+
 	}
 
 	handleDelay(taskID) {
@@ -278,6 +289,25 @@ class ResourceManager {
 				default: break;
 			}
 		}
+
+	}
+
+	areResourcesPending() {
+
+		const pendingResources = this.pendingResources;
+
+		let numResourcesWithUnitsPending = 0;
+		Object.keys(this.pendingResources).forEach(function(resource) {
+			if (+pendingResources[resource] > 0) {
+				numResourcesWithUnitsPending += 1;
+			}
+		});
+
+		if (numResourcesWithUnitsPending > 0) {
+			return(true);
+		}
+
+		return(false);
 
 	}
 

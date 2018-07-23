@@ -35,19 +35,8 @@ class OptimisticManager extends ResourceManager {
 
 	}
 
-	handleDeadlock() {
-
-		const taskIDs = this.blockedQueue.getSortedTaskIDs();
-
-		while (taskIDs.length > 1) {
-			const taskID = taskIDs[0];
-			this.abort(taskID);
-			taskIDs.shift();
-			this.logger.log(`${this.curCycle}: DEADLOCK! Task #${taskID} aborted`);
-		}
-
-		this.blockedQueue.set(taskIDs);
-
+	deadlocked() {
+		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
 	}
 
 };
