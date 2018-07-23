@@ -7,7 +7,7 @@ class Logger {
 	constructor(args) {
 		args = args ? args : {};
 		this.showOutput = args["show_output"] ? args["show_output"] : false;
-		this.lineLength = args["line_length"] ? args["line_length"] : 80;
+		this.lineLength = args["line_length"] ? args["line_length"] : 75;
 	}
 
 	log(output) {
