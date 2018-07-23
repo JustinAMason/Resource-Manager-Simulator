@@ -7,7 +7,7 @@ class Logger {
 	constructor(args) {
 		args = args ? args : {};
 		this.showOutput = args["show_output"] ? args["show_output"] : false;
-		this.lineLength = args["line_length"] ? args["line_length"] : 70;
+		this.lineLength = args["line_length"] ? args["line_length"] : 80;
 	}
 
 	log(output) {
@@ -21,7 +21,7 @@ class Logger {
 		if (this.showOutput) {
 			const line = "=".repeat((this.lineLength - header.length) / 2);
 			let output = line + header.toUpperCase() + line;
-			if (output.length < 70) {
+			if (output.length < this.lineLength) {
 				output += "=";
 			}
 			console.log(output);

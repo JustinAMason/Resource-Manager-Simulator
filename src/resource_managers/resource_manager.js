@@ -40,7 +40,7 @@ class ResourceManager {
 
 		}
 
-		this.logger.logHeaderBreak();
+		//this.logger.logHeaderBreak();
 
 	}
 

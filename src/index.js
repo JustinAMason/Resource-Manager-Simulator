@@ -46,7 +46,6 @@ function showResults(config) {
 	console.log(`${numAbortions} task(s) were aborted.`);
 
 	console.log();
-	resultsLogger.logHeaderBreak();
 	console.log();
 
 }

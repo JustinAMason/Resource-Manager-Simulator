@@ -6,7 +6,7 @@ class DijkstraBankerManager extends ResourceManager {
 
 	constructor(config) {
 		super(config);
-		this.header = "Banker Resource Manager Simulation";
+		this.header = "Dijkstra's Banker Resource Manager Simulation";
 	}
 
 	handleRequest(action) {
