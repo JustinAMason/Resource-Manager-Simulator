@@ -190,12 +190,12 @@ class ResourceManager {
 		const quantity = +exchange["quantity"];
 
 		if (recipient === "task") {
-			task[resourceID]["has"] += quantity;
-			task[resourceID]["needs"] -= quantity;
-			this.resources[resourceID] -= quantity;
+			task[resourceID]["has"] = +task[resourceID]["has"] + quantity;
+			task[resourceID]["needs"] = +task[resourceID]["needs"] - quantity;
+			this.resources[resourceID] = +this.resources[resourceID] - quantity;
 		} else if (recipient === "manager") {
 
-			task[resourceID]["has"] -= quantity;
+			task[resourceID]["has"] = +task[resourceID]["has"] - quantity;
 
 			if (!this.pendingResources[resourceID]) {
 				this.pendingResources[resourceID] = 0;

@@ -41,8 +41,55 @@ class DijkstraBankerManager extends ResourceManager {
 
 	}
 
-	isSafeRequest() {
-		return true;
+	isCompleteable(config) {
+
+		const resources = config["resources"];
+		const tasks = config["tasks"];
+		const taskID = config["taskID"];
+		const task = tasks[taskID];
+		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
+
+		const resourceIDs = Object.keys(task).filter(function(key) {
+			return !keysToIgnore.includes(key);
+		});
+
+		let unsatisfiableNeeds = 0;
+		resourceIDs.forEach(function(resourceID) {
+			if (resources[resourceID] < task[resourceID]["needs"]) {
+				unsatisfiableNeeds += 1;
+			}
+		});
+
+		return(unsatisfiableNeeds === 0);
+
+	}
+
+	isSafeRequest(request) {
+
+		const taskID = request["taskID"];
+		const resourceID = request["resourceID"];
+		const quantity = request["quantity"];
+
+		const potentialResources = Object.assign({}, this.resources);
+		potentialResources[resourceID] -= quantity;
+
+		const potentialTasks = Object.assign({}, this.tasks);
+		potentialTasks[taskID][resourceID]["has"] += quantity;
+		potentialTasks[taskID][resourceID]["needs"] -= quantity;
+
+		let numCompleteableTasks = 0;
+
+		const tasks = this.tasks;
+		const isCompleteable = this.isCompleteable;
+
+		Object.keys(this.tasks).forEach(function(taskID) {
+			if (isCompleteable({"resources": potentialResources, "tasks": potentialTasks, taskID})) {
+				numCompleteableTasks += 1;
+			}
+		});
+
+		return(numCompleteableTasks > 0);
+
 	}
 
 	deadlocked() {
