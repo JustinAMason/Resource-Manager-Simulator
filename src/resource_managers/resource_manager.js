@@ -62,7 +62,7 @@ class ResourceManager {
 			default: break;
 		}
 
-		if (task["status"] !== "blocked") {
+		if (task["status"] !== "blocked" && task["status"] !== "delayed") {
 			activities.shift();
 		}
 
@@ -80,8 +80,8 @@ class ResourceManager {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
 
-		if (task["status"] === "blocked") {
-			this.handleBlock(task);
+		if (task["status"] === "delayed") {
+			this.handleDelay(task);
 		} else {
 			this.handleRequest(action);
 		}
@@ -93,8 +93,8 @@ class ResourceManager {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
 
-		if (task["status"] === "blocked") {
-			this.handleBlock(task);
+		if (task["status"] === "delayed") {
+			this.handleDelay(task);
 		} else {
 			this.handleRelease(action);
 		}
@@ -107,13 +107,21 @@ class ResourceManager {
 		const task = this.tasks[taskID];
 		const resourceID = action["resourceID"];
 		const unitsWaived = action["quantity"];
+		const delay = action["delay"];
 
-		if (unitsWaived <= task[resourceID]["has"]) {
-			this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsWaived});
-			this.logger.log(`${this.curCycle}: Task #${taskID} releases ${unitsWaived} R${resourceID}`);
+		if (delay > 0) {
+			task["delay"] = +delay;
+			action["delay"] -= 1;
+			task["status"] = "delayed";
+			this.handleDelay(taskID);
 		} else {
-			task["status"] = "blocked";
-			this.logger.log(`${this.curCycle}: Task #${taskID} cannot release ${unitsWaived} R${resourceID} (more than owned)`);
+			if (unitsWaived <= task[resourceID]["has"]) {
+				this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsWaived});
+				this.logger.log(`${this.curCycle}: Task #${taskID} releases ${unitsWaived} R${resourceID}`);
+			} else {
+				task["status"] = "blocked";
+				this.logger.log(`${this.curCycle}: Task #${taskID} cannot release ${unitsWaived} R${resourceID} (more than owned)`);
+			}
 		}
 
 	}
@@ -123,8 +131,8 @@ class ResourceManager {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
 
-		if (task["status"] === "blocked") {
-			this.handleBlock(task);
+		if (task["status"] === "delayed") {
+			this.handleDelay(task);
 		} else {
 			this.handleTermination(action);
 		}
@@ -134,10 +142,18 @@ class ResourceManager {
 	handleTermination(action) {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
+		const delay = action["delay"];
 
-		task["status"] = "terminated";
+		if (delay > 0) {
+			task["delay"] = +delay;
+			action["delay"] -= 1;
+			task["status"] = "delayed";
+			this.handleDelay(taskID);
+		} else {
+			task["status"] = "terminated";
 		task["time"] = this.curCycle;
 		this.logger.log(`${this.curCycle}: Task #${taskID} has been terminated`);
+		}
 
 	}
 
@@ -151,9 +167,10 @@ class ResourceManager {
 		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
 	}
 
-	handleBlock(task) {
+	handleDelay(taskID) {
+		const task = this.tasks[taskID];
 		task["delay"] -= 1;
-		this.logger.log(`Task #${taskID} delayed (${task["delay"]} cycle(s) left)`);
+		this.logger.log(`${this.curCycle}: Task #${taskID} delayed (${task["delay"]} cycle(s) left)`);
 	}
 
 	exchangeUnits(exchange) {
@@ -258,6 +275,7 @@ class ResourceManager {
 		if (!activities.length == 0) {
 			switch (task["status"]) {
 				case "ready": this.nonblockedQueue.add(taskID); break;
+				case "delayed": this.nonblockedQueue.add(taskID); break;
 				case "blocked": this.blockedQueue.add(taskID); break;
 				default: break;
 			}

@@ -15,14 +15,22 @@ class OptimisticManager extends ResourceManager {
 		const task = this.tasks[taskID];
 		const resourceID = action["resourceID"];
 		const unitsRequested = action["quantity"];
+		const delay = action["delay"];
 
-		if (unitsRequested <= this.resources[resourceID]) {
-			this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
-			this.logger.log(`${this.curCycle}: Task #${taskID} granted ${unitsRequested} R${resourceID}`);
+		if (delay > 0) {
+			task["delay"] = +delay;
+			action["delay"] -= 1;
+			task["status"] = "delayed";
+			this.handleDelay(taskID);
 		} else {
-			task["status"] = "blocked";
-			task["wait"] += 1;
-			this.logger.log(`${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
+			if (unitsRequested <= this.resources[resourceID]) {
+				this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
+				this.logger.log(`${this.curCycle}: Task #${taskID} granted ${unitsRequested} R${resourceID}`);
+			} else {
+				task["status"] = "blocked";
+				task["wait"] += 1;
+				this.logger.log(`${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
+			}
 		}
 
 	}
