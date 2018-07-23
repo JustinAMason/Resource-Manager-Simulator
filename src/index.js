@@ -18,8 +18,8 @@ function showResults(tasks) {
 	resultsLogger.log();
 	resultsLogger.logHeader("Optimistic Resource Manager Results");
 
-	let totalTime = 0;
-	let totalWait = 0;
+	let completionTime = 0;
+	let numAbortions = 0;
 
 	Object.keys(tasks).forEach(function(taskID) {
 		const task = tasks[taskID];
@@ -28,16 +28,18 @@ function showResults(tasks) {
 		const wait = task["wait"];
 
 		if (status === "aborted") {
+			numAbortions += 1;
 			console.log(`Task #${taskID} was aborted.`);
 		} else {
-			totalTime += time;
-			totalWait += wait;
+			completionTime = Math.max(completionTime, time);
 			console.log(`Task #${taskID} finished after ${time} cycle(s). It waited for ${wait} cycle(s) in total (${((wait / time) * 100).toFixed(0)}%).`);
 		}
 
 	});
 
-	console.log(`The task(s) finished in ${totalTime} cycle(s). The task(s) waited for ${totalWait} cycle(s) in total (${((totalWait / totalTime) * 100).toFixed(0)}%).`);
+	console.log();
+	console.log(`This manager finished after ${completionTime} cycle(s).`);
+	console.log(`${numAbortions} task(s) were aborted.`);
 
 	console.log();
 	resultsLogger.logHeaderBreak();
