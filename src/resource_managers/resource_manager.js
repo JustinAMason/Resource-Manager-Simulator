@@ -40,8 +40,6 @@ class ResourceManager {
 
 		}
 
-		//this.logger.logHeaderBreak();
-
 	}
 
 	runCycle() {
