@@ -9,10 +9,6 @@ class OptimisticManager extends ResourceManager {
 		this.header = "Optimistic Resource Manager Simulation";
 	}
 
-	initiate(taskID) {
-		this.logger.log(`${this.curCycle}: Task #${taskID} initiated`);
-	}
-
 	handleRequest(action) {
 
 		const taskID = action["taskID"];
