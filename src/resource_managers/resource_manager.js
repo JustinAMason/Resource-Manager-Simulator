@@ -69,30 +69,6 @@ class ResourceManager {
 
 	}
 
-	initiate(taskID) {
-
-		const resources = this.resources;
-		const tasks = this.tasks;
-		const abort = this.abort;
-
-		let numUnsatisfiableClaims = 0;
-		Object.keys(this.resources).forEach(function(resourceID) {
-			const unitsAvailable = resources[resourceID];
-			const unitsNeeded = tasks[taskID][resourceID]["needs"];
-			if (unitsNeeded > unitsAvailable) {
-				numUnsatisfiableClaims += 1;
-			}
-		});
-
-		if (numUnsatisfiableClaims > 0) {
-			this.logger.log(`${this.curCycle}: Task #${taskID} aborted (impossible to fulfill)`);
-			this.abort(taskID);
-		} else {
-			this.logger.log(`${this.curCycle}: Task #${taskID} initiated`);
-		}
-
-	}
-
 	request(action) {
 		
 		const taskID = action["taskID"];
