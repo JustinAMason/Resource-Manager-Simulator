@@ -60,6 +60,10 @@ class DijkstraBankerManager extends ResourceManager {
 			}
 		});
 
+		if (tasks[taskID]["activities"].length === 1) {
+			return(false);
+		}
+
 		return(unsatisfiableNeeds === 0);
 
 	}
@@ -93,7 +97,7 @@ class DijkstraBankerManager extends ResourceManager {
 	}
 
 	deadlocked() {
-		return(this.areResourcesPending());
+		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0 && !this.areResourcesPending());
 	}
 
 };
