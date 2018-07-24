@@ -60,7 +60,15 @@ class DijkstraBankerManager extends ResourceManager {
 			}
 		});
 
-		if (task["activities"].length === 1 || task["status"] === "terminated") {
+		let requestsRemaining = 0;
+		task["activities"].forEach(function(activity) {
+			if (activity["action"] === "request") {
+				requestsRemaining += 1;
+			} else {
+			}
+		});
+
+		if (requestsRemaining === 0) {
 			return(false);
 		}
 
