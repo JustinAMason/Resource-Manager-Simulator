@@ -60,7 +60,7 @@ class DijkstraBankerManager extends ResourceManager {
 			}
 		});
 
-		if (tasks[taskID]["activities"].length === 1) {
+		if (task["activities"].length === 1 || task["status"] === "terminated") {
 			return(false);
 		}
 
@@ -91,6 +91,8 @@ class DijkstraBankerManager extends ResourceManager {
 				numCompleteableTasks += 1;
 			}
 		});
+
+
 
 		return(numCompleteableTasks > 0);
 
