@@ -68,21 +68,21 @@ class DijkstraBankerManager extends ResourceManager {
 
 		const taskID = request["taskID"];
 		const resourceID = request["resourceID"];
-		const quantity = request["quantity"];
+		const quantity = +request["quantity"];
 
 		const potentialResources = Object.assign({}, this.resources);
 		potentialResources[resourceID] -= quantity;
 
-		const potentialTasks = Object.assign({}, this.tasks);
-		potentialTasks[taskID][resourceID]["has"] += quantity;
-		potentialTasks[taskID][resourceID]["needs"] -= quantity;
+		const potentialTasks = JSON.parse(JSON.stringify(this.tasks));
+		potentialTasks[taskID][resourceID]["has"] = +potentialTasks[taskID][resourceID]["has"] + quantity;
+		potentialTasks[taskID][resourceID]["needs"] = +potentialTasks[taskID][resourceID]["needs"] - quantity;
 
 		let numCompleteableTasks = 0;
 
 		const tasks = this.tasks;
 		const isCompleteable = this.isCompleteable;
 
-		Object.keys(this.tasks).forEach(function(taskID) {
+		Object.keys(potentialTasks).forEach(function(taskID) {
 			if (isCompleteable({"resources": potentialResources, "tasks": potentialTasks, taskID})) {
 				numCompleteableTasks += 1;
 			}
