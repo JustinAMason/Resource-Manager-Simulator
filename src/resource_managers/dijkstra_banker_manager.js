@@ -23,7 +23,10 @@ class DijkstraBankerManager extends ResourceManager {
 			task["status"] = "delayed";
 			this.handleDelay(taskID);
 		} else {
-			if (unitsRequested <= this.resources[resourceID]) {
+			if (unitsRequested > task[resourceID]["needs"]) {
+				this.logger.log(`${this.curCycle}: Task #${taskID} aborted (requested more than needed)`);
+				this.abort(taskID);
+			} else if (unitsRequested <= this.resources[resourceID]) {
 				if (this.isSafeRequest(action)) {
 					this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
 					this.logger.log(`${this.curCycle}: Task #${taskID} granted ${unitsRequested} R${resourceID}`);
