@@ -196,6 +196,7 @@ class ResourceManager {
 		} else if (recipient === "manager") {
 
 			task[resourceID]["has"] = +task[resourceID]["has"] - quantity;
+			task[resourceID]["needs"] = +task[resourceID]["needs"] + quantity;
 
 			if (!this.pendingResources[resourceID]) {
 				this.pendingResources[resourceID] = 0;
