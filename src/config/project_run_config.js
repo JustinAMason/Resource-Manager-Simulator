@@ -4,14 +4,18 @@ module.exports = {
 	getConfig
 };
 
-function getConfig(args) {
+function getConfig(args, test) {
+
 	const file = getFile(args[2]);
 	const showOutput = getShowOutput(args[3]);
-	logConfiguration(file, showOutput);
-	return {
-		"file": file,
-		"show_output": showOutput
-	};
+	const showConfiguration = test ? false : true;
+
+	if (!test) {
+		logConfiguration(file, showOutput);
+	}
+	
+	return {"file": file, "show_output": showOutput};
+	
 }
 
 function getFile(arg) {
