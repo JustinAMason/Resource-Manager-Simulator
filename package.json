@@ -4,7 +4,7 @@
   "description": "Personal refactoring project of a resource management simulator",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/tape test/**/*.js",
+    "test": "node_modules/.bin/mocha test/**/*.js",
     "project": "echo \"Shut up\""
   },
   "repository": {
@@ -22,6 +22,8 @@
     "resolve-path": "^1.4.0"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
     "tape": "^4.9.1"
   }
 }
