@@ -7,11 +7,6 @@ const BankerManager = require(__dirname + "/resource_managers/dijkstra_banker_ma
 const OptimisticManager = require(__dirname + "/resource_managers/optimistic_manager.js");
 const Queue = require(__dirname + "/task_handling/queue.js");
 
-function run() {
-	const optimistic = new OptimisticManager({detailsLogger, resources, queue, tasks});
-	optimistic.run();
-}
-
 function showResults(config) {
 
 	const tasks = config["tasks"];
