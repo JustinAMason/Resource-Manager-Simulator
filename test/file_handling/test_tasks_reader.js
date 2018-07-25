@@ -1,7 +1,6 @@
 const chai = require("chai");
 const tasks_reader = require("../../src/file_handling/tasks_reader.js");
 const factories = require("../factories");
-
 const expect = chai.expect;
 
 describe("tasks_reader", function() {
