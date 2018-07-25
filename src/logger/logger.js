@@ -43,7 +43,7 @@ class Logger {
 
 	showTasksState(tasks) {
 		if (this.showOutput) {
-			tasks_reader.showTasksState({tasks});
+			tasks_reader.showTasksState(tasks);
 		}
 	}
 

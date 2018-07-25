@@ -18,14 +18,17 @@ function getConfig(args, test) {
 	
 }
 
+// private method
 function getFile(arg) {
 	return(arg ? arg : path.resolve(__dirname, "../../sample_inputs/input-01.txt"));
 }
 
+// private method
 function getShowOutput(arg) {
 	return(arg ? true : false);
 }
 
+// private method
 function logConfiguration(file, showOutput) {
 
 	const outputVersion = (showOutput) ? "Detailed Output" : "Results Only";

@@ -15,9 +15,7 @@ function getTasks(args) {
 	return(tasks);
 }
 
-function showTasksState(config) {
-
-	const tasks = config["tasks"];
+function showTasksState(tasks) {
 
 	Object.keys(tasks).forEach(function(taskID) {
 
@@ -45,6 +43,7 @@ function showTasksState(config) {
 
 }
 
+// private method
 function getInitiations(data) {
 
 	data.shift();
@@ -63,6 +62,7 @@ function getInitiations(data) {
 
 }
 
+// private method
 function getAllActivities(data) {
 
 	data.shift();
@@ -76,10 +76,12 @@ function getAllActivities(data) {
 
 }
 
+// private method
 function getNumTasks(data) {
 	return(+data[0][0]);
 }
 
+// private method
 function createTasks(config) {
 
 	const numTasks = config["numTasks"];
