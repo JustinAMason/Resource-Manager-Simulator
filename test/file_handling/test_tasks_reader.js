@@ -26,7 +26,7 @@ describe("tasks_reader", function() {
 		context("Invalid/No file path given", function() {
 
 			const commandLineConfig = {};
-			const expected = factories.input_01_tasks_without_activities;
+			const expected = factories.tasks_without_activities[0];
 			const actual = tasks_reader.getTasks(commandLineConfig);
 
 			it("should create a tasks object without activities from the default file path (input_01)", function() {
