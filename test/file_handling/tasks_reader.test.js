@@ -8,7 +8,7 @@ describe("tasks_reader", function() {
 		context("Valid file path given", function() {
 			const commandLineConfigs = JSON.parse(JSON.stringify(factories.command_line_configs));
 			const expectations = JSON.parse(JSON.stringify(factories.tasks_without_activities));
-			it("should create a tasks object without activities from the file paths given", function() {
+			it("creates a tasks object (without activities) from the file path given", function() {
 				commandLineConfigs.forEach(function(commandLineConfig, i) {
 					const expected = expectations[i];
 					const actual = tasks_reader.getTasks(commandLineConfig);
@@ -21,7 +21,7 @@ describe("tasks_reader", function() {
 			const commandLineConfig = {};
 			const expected = JSON.parse(JSON.stringify(factories.tasks_without_activities[0]));
 			const actual = tasks_reader.getTasks(commandLineConfig, "test");
-			it("should create a tasks object without activities from the default file path (input_01)", function() {
+			it("creates a tasks object (without activities) from the default file path (input_01)", function() {
 				expect(expected).to.deep.equal(actual);
 			});
 		});
