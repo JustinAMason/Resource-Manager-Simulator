@@ -14,6 +14,22 @@ module.exports.command_line_configs = [
 	{ file: "test/test_input_files/input-13.txt" }
 ];
 
+module.exports.resources = [
+	{"1":4},
+	{"1":4},
+	{"1":4},
+	{"1":4},
+	{"1":4},
+	{"1":4},
+	{"1":4},
+	{"1":4},
+	{"1":4,"2":4},
+	{"1":2,"2":2},
+	{"1":4,"2":4,"3":4},
+	{"1":4},
+	{"1":4}
+];
+
 module.exports.tasks_without_activities = [
 	{"1":{"1":{"needs":4,"has":0},"activities":[],"delay":0,"time":0,"wait":0,"status":"ready"},"2":{"1":{"needs":4,"has":0},"activities":[],"delay":0,"time":0,"wait":0,"status":"ready"}},
 	{"1":{"1":{"needs":4,"has":0},"activities":[],"delay":0,"time":0,"wait":0,"status":"ready"},"2":{"1":{"needs":4,"has":0},"activities":[],"delay":0,"time":0,"wait":0,"status":"ready"}},
