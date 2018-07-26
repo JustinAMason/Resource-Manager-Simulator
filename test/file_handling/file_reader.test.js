@@ -15,7 +15,7 @@ describe("file_reader", function() {
 			});
 		});
 		context("invalid file path given", function() {
-			it("reads and returns the default file's contents (input_01)", function() {
+			it("reads and returns the default file's contents (test/test_input_files/input_01)", function() {
 				const file = "foo";
 				const expected = fs.readFileSync("test/test_input_files/input-01.txt", "utf8");
 				const actual = file_reader.readFile(file, "test");

@@ -21,7 +21,7 @@ describe("tasks_reader", function() {
 			const commandLineConfig = {};
 			const expected = JSON.parse(JSON.stringify(factories.tasks_without_activities[0]));
 			const actual = tasks_reader.getTasks(commandLineConfig, "test");
-			it("creates a tasks object (without activities) from the default file path (input_01)", function() {
+			it("creates a tasks object (without activities) from the default file path (test/test_input_files/input_01)", function() {
 				expect(expected).to.deep.equal(actual);
 			});
 		});

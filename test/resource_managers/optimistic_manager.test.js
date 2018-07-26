@@ -14,7 +14,7 @@ describe("optimistic_manager", function() {
 		const detailsLogger = new Logger({"showOutput": false});
 
 		for (let i = 0; i < tasksList.length; i++) {
-			it(`successfully and correctly modifies tasks object generated from input_${i > 8 ? i + 1 : "0" + (i + 1)}`, function() {
+			it(`successfully and correctly modifies tasks object generated from test/test_input_files/input_${i > 8 ? i + 1 : "0" + (i + 1)}`, function() {
 				const resources = resourcesList[i];
 				const tasks = tasksList[i];
 				const queue = new Queue(tasks);
