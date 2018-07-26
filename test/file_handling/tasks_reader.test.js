@@ -4,9 +4,7 @@ const factories = require("../factories");
 const expect = chai.expect;
 
 describe("tasks_reader", function() {
-
 	describe("#getTasks()", function() {
-
 		context("Valid file paths given", function() {
 			const commandLineConfigs = factories.command_line_configs;
 			const expectations = factories.tasks_without_activities;
@@ -19,7 +17,6 @@ describe("tasks_reader", function() {
 			});
 
 		});
-
 		context("Invalid/No file path given", function() {
 			const commandLineConfig = {};
 			const expected = factories.tasks_without_activities[0];
@@ -28,7 +25,5 @@ describe("tasks_reader", function() {
 				expect(expected).to.deep.equal(actual);
 			});
 		});
-
 	});
-
 });
