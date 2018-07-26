@@ -5,9 +5,9 @@ module.exports = {
 	showTasksState
 };
 
-function getTasks(args) {
+function getTasks(args, test) {
 	const file = args["file"];
-	const data = file_reader.readFile(file);
+	const data = file_reader.readFile(file, test);
 	const initiations = getInitiations(data.split("\n"));
 	const activities = getAllActivities(data.split("\n"));
 	const numTasks = getNumTasks(data.split("\n"));
