@@ -6,7 +6,7 @@ const expect = chai.expect;
 describe("queue", function() {
 
 	describe("#add()", function() {
-		it("inserts the element at the end of the queue", function() {
+		it("inserts provided element at the end of the queue", function() {
 			const queue = new Queue({});
 			queue.add("foo");
 			const expected = ["foo"];

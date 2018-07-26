@@ -5,7 +5,7 @@ const expect = chai.expect;
 
 describe("activities_reader", function() {
 	describe("#addActivitiesToTasks()", function() {
-		it("correctly adds activities to its corresponding tasks", function() {
+		it("correctly adds activities to their tasks", function() {
 			const commandLineConfigs = JSON.parse(JSON.stringify(factories.command_line_configs));
 			const tasksWithoutActivities = JSON.parse(JSON.stringify(factories.tasks_without_activities));
 			const tasksWithActivities = JSON.parse(JSON.stringify(factories.tasks_with_activities));
