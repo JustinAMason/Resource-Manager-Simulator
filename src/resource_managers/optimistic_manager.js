@@ -9,10 +9,12 @@ class OptimisticManager extends ResourceManager {
 		this.header = "Optimistic Resource Manager Simulation";
 	}
 
+	// private method
 	initiate(taskID) {
 		this.logger.log(`${this.curCycle}: Task #${taskID} initiated`);
 	}
 
+	// private method
 	handleRequest(action) {
 
 		const taskID = action["taskID"];
@@ -39,6 +41,7 @@ class OptimisticManager extends ResourceManager {
 
 	}
 
+	// private method
 	deadlocked() {
 		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
 	}

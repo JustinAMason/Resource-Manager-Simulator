@@ -42,6 +42,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	runCycle() {
 
 		const taskID = this.queue.remove();
@@ -69,6 +70,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	request(action) {
 		
 		const taskID = action["taskID"];
@@ -82,6 +84,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	release(action) {
 
 		const taskID = action["taskID"];
@@ -95,6 +98,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	handleRelease(action) {
 
 		const taskID = action["taskID"];
@@ -120,6 +124,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	terminate(action) {
 
 		const taskID = action["taskID"];
@@ -134,6 +139,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	handleTermination(action) {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
@@ -152,12 +158,14 @@ class ResourceManager {
 
 	}
 
+	// private method
 	abort(taskID) {
 		const task = this.tasks[taskID];
 		task["status"] = "aborted";
 		this.releaseResources(taskID);
 	}
 
+	// private method
 	handleDeadlock() {
 
 		const taskIDs = this.blockedQueue.getSortedTaskIDs();
@@ -173,12 +181,14 @@ class ResourceManager {
 
 	}
 
+	// private method
 	handleDelay(taskID) {
 		const task = this.tasks[taskID];
 		task["delay"] -= 1;
 		this.logger.log(`${this.curCycle}: Task #${taskID} delayed (${task["delay"]} cycle(s) left)`);
 	}
 
+	// private method
 	exchangeUnits(exchange) {
 
 		const recipient = exchange["recipient"];
@@ -205,6 +215,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	releaseResources(taskID) {
 
 		const task = this.tasks[taskID];
@@ -222,6 +233,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	updateResources() {
 
 		const resources = this.resources;
@@ -237,6 +249,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	showResourcesAvailable() {
 
 		const resources = this.resources;
@@ -252,6 +265,7 @@ class ResourceManager {
 		
 	}
 
+	// private method
 	updateStatus(taskID) {
 
 		const task = this.tasks[taskID];
@@ -262,6 +276,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	updateQueue() {
 
 		while (!this.blockedQueue.isEmpty()) {
@@ -274,6 +289,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	updateQueues(taskID) {
 
 		const task = this.tasks[taskID];
@@ -290,6 +306,7 @@ class ResourceManager {
 
 	}
 
+	// private method
 	areResourcesPending() {
 
 		const pendingResources = this.pendingResources;

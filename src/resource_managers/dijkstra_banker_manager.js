@@ -9,6 +9,7 @@ class DijkstraBankerManager extends ResourceManager {
 		this.header = "Dijkstra's Banker Resource Manager Simulation";
 	}
 
+	// private method
 	initiate(taskID) {
 
 		const resources = this.resources;
@@ -33,6 +34,7 @@ class DijkstraBankerManager extends ResourceManager {
 
 	}
 
+	// private method
 	handleRequest(action) {
 
 		const taskID = action["taskID"];
@@ -68,6 +70,7 @@ class DijkstraBankerManager extends ResourceManager {
 
 	}
 
+	// private method
 	isCompleteable(config) {
 
 		const resources = config["resources"];
@@ -103,6 +106,7 @@ class DijkstraBankerManager extends ResourceManager {
 
 	}
 
+	// private method
 	isSafeRequest(request) {
 
 		const taskID = request["taskID"];
@@ -133,6 +137,7 @@ class DijkstraBankerManager extends ResourceManager {
 
 	}
 
+	// private method
 	deadlocked() {
 		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0 && !this.areResourcesPending());
 	}
