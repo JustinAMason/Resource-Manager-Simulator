@@ -12,6 +12,7 @@ function getResources(args) {
 	return(config);
 }
 
+// private method
 function getResourceData(data) {
 	const configRow = data[0];
 	const configVals = configRow.split(" ");
@@ -19,6 +20,7 @@ function getResourceData(data) {
 	return(configVals);
 }
 
+// private method
 function getResourceConfig(data) {
 
 	let numResources = +data[0];
