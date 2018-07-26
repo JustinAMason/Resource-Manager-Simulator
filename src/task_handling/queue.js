@@ -12,12 +12,16 @@ class Queue {
 
 	remove() {
 		const taskID = this.queue[0];
-		this.queue.shift();
-		return taskID;
+		if (this.queue.length > 0) {
+			this.queue.shift();
+			return taskID;
+		}
 	}
 
 	set(queue) {
-		this.queue = queue;
+		if (Array.isArray(queue)) {
+			this.queue = queue;
+		}
 	}
 
 	getSortedTaskIDs() {
@@ -33,7 +37,6 @@ class Queue {
 	}
 
 	toString() {
-		console.log(typeof this.queue);
 		console.log("" + this.queue);
 	}
 
