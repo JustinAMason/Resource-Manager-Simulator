@@ -14,6 +14,7 @@ function addActivitiesToTasks(args) {
 	return(tasks);
 }
 
+// private method
 function getActivitiesData(data) {
 
 	data.shift();
@@ -26,6 +27,7 @@ function getActivitiesData(data) {
 	return(data);
 }
 
+// private method
 function getActivities(activitiesLog) {
 
 	const activities = [];
@@ -61,6 +63,7 @@ function getActivities(activitiesLog) {
 	return(activities);
 }
 
+// private method
 function addActivities(args) {
 	const tasks = args["tasks"];
 	const activities = args["activities"];
