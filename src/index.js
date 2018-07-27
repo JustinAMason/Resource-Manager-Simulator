@@ -7,76 +7,7 @@ const BankerManager = require(__dirname + "/resource_managers/dijkstra_banker_ma
 const OptimisticManager = require(__dirname + "/resource_managers/optimistic_manager.js");
 const Queue = require(__dirname + "/task_handling/queue.js");
 
-// TODO: Refactor this function
-function showResults(config) {
-
-	const tasks = config["tasks"];
-	const manager_type = config["manager_type"];
-
-	const resultsLogger = new Logger({"show_output": true});
-
-	resultsLogger.log();
-	resultsLogger.logHeader(`${manager_type} Resource Manager Results`);
-
-	let completionTime = 0;
-	let numAbortions = 0;
-
-	Object.keys(tasks).forEach(function(taskID) {
-		const task = tasks[taskID];
-		const status = task["status"];
-		const time = task["time"];
-		const wait = task["wait"];
-
-		if (status === "aborted") {
-			numAbortions += 1;
-			console.log(`Task #${taskID} was aborted.`);
-		} else {
-			completionTime = Math.max(completionTime, time);
-			console.log(`Task #${taskID} finished after ${time} cycle(s). It waited for ${wait} cycle(s) in total (${((wait / time) * 100).toFixed(0)}%).`);
-		}
-
-	});
-
-	console.log();
-	console.log(`This manager finished after ${completionTime} cycle(s).`);
-	console.log(`${numAbortions} task(s) were aborted.`);
-
-	console.log();
-	console.log();
-
-}
-
-function copyObject(object, quantity) {
-
-	quantity = quantity ? quantity : 1;
-
-	const copies = [];
-	for (let i = 0; i < quantity; i++) {
-		copies.push(JSON.parse(JSON.stringify(object)));
-	}
-
-	return(copies);
-
-}
-
-function copyInstance(instance, instanceArgs, quantity) {
-
-	quantity = quantity ? quantity : 1;
-
-	const copies = [];
-	for (let i = 0; i < quantity; i++) {
-		copies.push(new instance(instanceArgs));
-	}
-
-	return(copies);
-
-}
-
-function runManagers(managers) {
-	managers.forEach(function(manager) {
-		manager.run();
-	});
-}
+runProgram();
 
 function runProgram() {
 	const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
@@ -93,9 +24,101 @@ function runProgram() {
 	const bankerManager = new BankerManager({detailsLogger, resources, "queue": bankerQueue, "tasks": bankerTasks});
 
 	runManagers([optimisticManager, bankerManager]);
-
-	showResults({"tasks": optimisticTasks, "manager_type": "Optimistic"});
-	showResults({"tasks": bankerTasks, "manager_type": "Dijkstra's Banker"});
+	reportResults([optimisticTasks, bankerTasks], ["Optimistic", "Dijkstra's Banker"]);
 }
 
-runProgram();
+function copyObject(object, quantity) {
+	quantity = getCopyQuantity(quantity);
+
+	const copies = [];
+	for (let i = 0; i < quantity; i++) {
+		copies.push(JSON.parse(JSON.stringify(object)));
+	}
+
+	return(copies);
+}
+
+function copyInstance(instance, instanceArgs, quantity) {
+	quantity = getCopyQuantity(quantity);
+
+	const copies = [];
+	for (let i = 0; i < quantity; i++) {
+		copies.push(new instance(instanceArgs));
+	}
+
+	return(copies);
+}
+
+function getCopyQuantity(quantity) {
+	return quantity ? quantity : 1;
+}
+
+function runManagers(managers) {
+	managers.forEach(function(manager) {
+		manager.run();
+	});
+}
+
+function reportResults(tasksPerManager, manager_types) {
+	tasksPerManager.forEach(function(managerTasks, index) {
+		reportManagerResults(managerTasks, manager_types[index]);
+	});
+}
+
+function reportManagerResults(tasks, manager_type) {
+	const resultsLogger = new Logger({"show_output": true});
+
+	resultsLogger.log();
+	resultsLogger.logHeader(`${manager_type} Resource Manager Results`);
+
+	Object.keys(tasks).forEach(function(taskID) {
+		reportTaskResult(resultsLogger, tasks, taskID);
+	});
+	
+	reportManagerSummary(resultsLogger, getCompletionTime(tasks), countAbortions(tasks));
+}
+
+function reportTaskResult(logger, tasks, taskID) {
+	if (isAbortion(tasks, taskID)) {
+		reportTaskAbortion(logger, taskID);
+	} else {
+		reportTaskCompletion(logger, tasks, taskID);
+	}
+}
+
+function isAbortion(tasks, taskID) {
+	return tasks[taskID]["status"] === "aborted";
+}
+
+function reportTaskAbortion(logger, taskID) {
+	logger.log(`Task #${taskID} was aborted.`);
+}
+
+function reportTaskCompletion(logger, tasks, taskID) {
+	const waitPercentage = getWaitPercentage(tasks[taskID]["wait"], tasks[taskID]["time"]);
+	logger.log(`Task #${taskID} finished after ${tasks[taskID]["time"]} cycle(s). It waited for ${tasks[taskID]["wait"]} cycle(s) in total (${waitPercentage}%).`);
+}
+
+function getWaitPercentage(waitTime, totalTime) {
+	return ((+waitTime / +totalTime) * 100).toFixed(0);
+}
+
+function reportManagerSummary(logger, completionTime, numAbortions) {
+	logger.log();
+	logger.log(`This manager finished after ${completionTime} cycle(s).`);
+	logger.log(`${numAbortions} task(s) were aborted.`);
+	logger.log();
+	logger.log();
+}
+
+function getCompletionTime(tasks) {
+	return Object.keys(tasks).reduce(function(time, taskID) {
+		return Math.max(time, tasks[taskID]["time"]);
+	}, 0);
+}
+
+function countAbortions(tasks) {
+	return Object.keys(tasks).reduce(function(count, taskID) {
+		return isAbortion(tasks, taskID) ? count + 1 : count;
+	}, 0);
+}
