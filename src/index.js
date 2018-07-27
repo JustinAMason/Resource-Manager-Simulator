@@ -7,6 +7,7 @@ const BankerManager = require(__dirname + "/resource_managers/dijkstra_banker_ma
 const OptimisticManager = require(__dirname + "/resource_managers/optimistic_manager.js");
 const Queue = require(__dirname + "/task_handling/queue.js");
 
+// TODO: Refactor this function
 function showResults(config) {
 
 	const tasks = config["tasks"];
@@ -45,24 +46,56 @@ function showResults(config) {
 
 }
 
-const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
-const detailsLogger = new Logger(commandLineConfig);
-const resources = resources_reader.getResources(commandLineConfig);
+function copyObject(object, quantity) {
 
-let optimisticTasks = tasks_reader.getTasks(commandLineConfig);
-optimisticTasks = activities_reader.addActivitiesToTasks({commandLineConfig, "tasks": optimisticTasks});
+	quantity = quantity ? quantity : 1;
 
-let bankerTasks = tasks_reader.getTasks(commandLineConfig);
-bankerTasks = activities_reader.addActivitiesToTasks({commandLineConfig, "tasks": bankerTasks});
+	const copies = [];
+	for (let i = 0; i < quantity; i++) {
+		copies.push(JSON.parse(JSON.stringify(object)));
+	}
 
-const optimisticQueue = new Queue(optimisticTasks);
-const bankerQueue = new Queue(bankerTasks);
+	return(copies);
 
-const optimisticManager = new OptimisticManager({detailsLogger, resources, "queue": optimisticQueue, "tasks": optimisticTasks});
-optimisticManager.run();
+}
 
-const bankerManager = new BankerManager({detailsLogger, resources, "queue": bankerQueue, "tasks": bankerTasks});
-bankerManager.run();
+function copyInstance(instance, instanceArgs, quantity) {
 
-showResults({"tasks": optimisticTasks, "manager_type": "Optimistic"});
-showResults({"tasks": bankerTasks, "manager_type": "Dijkstra's Banker"});
+	quantity = quantity ? quantity : 1;
+
+	const copies = [];
+	for (let i = 0; i < quantity; i++) {
+		copies.push(new instance(instanceArgs));
+	}
+
+	return(copies);
+
+}
+
+function runManagers(managers) {
+	managers.forEach(function(manager) {
+		manager.run();
+	});
+}
+
+function runProgram() {
+	const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
+	const detailsLogger = new Logger(commandLineConfig);
+	const resources = resources_reader.getResources(commandLineConfig);
+	const [optimisticTasks, bankerTasks] = copyObject(
+		activities_reader.addActivitiesToTasks(
+			{ commandLineConfig, "tasks": tasks_reader.getTasks(commandLineConfig) }
+		),
+		2
+	);
+	const [optimisticQueue, bankerQueue] = copyInstance(Queue, optimisticTasks, 2);
+	const optimisticManager = new OptimisticManager({detailsLogger, resources, "queue": optimisticQueue, "tasks": optimisticTasks});
+	const bankerManager = new BankerManager({detailsLogger, resources, "queue": bankerQueue, "tasks": bankerTasks});
+
+	runManagers([optimisticManager, bankerManager]);
+
+	showResults({"tasks": optimisticTasks, "manager_type": "Optimistic"});
+	showResults({"tasks": bankerTasks, "manager_type": "Dijkstra's Banker"});
+}
+
+runProgram();
