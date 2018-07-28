@@ -38,12 +38,6 @@ class Logger {
 		}
 	}
 
-	showTasksState(tasks) {
-		if (this.showOutput) {
-			tasks_reader.showTasksState(tasks);
-		}
-	}
-
 	//private method
 	lineTooShort(line) {
 		return line.length < this.lineLength;
