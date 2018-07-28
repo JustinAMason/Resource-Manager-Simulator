@@ -9,73 +9,62 @@ class DijkstraBankerManager extends ResourceManager {
 		this.header = "Dijkstra's Banker Resource Manager Simulation";
 	}
 
-	// private method
+	//private method
 	initiate(taskID) {
-
-		const resources = this.resources;
-		const tasks = this.tasks;
-		const abort = this.abort;
-
-		let numUnsatisfiableClaims = 0;
-		Object.keys(this.resources).forEach(function(resourceID) {
-			const unitsAvailable = resources[resourceID];
-			const unitsNeeded = tasks[taskID][resourceID]["needs"];
-			if (unitsNeeded > unitsAvailable) {
-				numUnsatisfiableClaims += 1;
-			}
-		});
-
-		if (numUnsatisfiableClaims > 0) {
-			this.logger.log(`${this.curCycle}: Task #${taskID} aborted (impossible to fulfill)`);
-			this.abort(taskID);
+		if (this.isFulfillableTask(taskID)) {
+			this.reportInitiation(taskID);
 		} else {
-			this.logger.log(`${this.curCycle}: Task #${taskID} initiated`);
+			this.handleAbortion(taskID, "initiation");
 		}
+	}
 
+	//private method
+	isFulfillableTask(taskID) {
+		const [tasks, resources, isValidClaim] = [this.tasks, this.resources, this.isValidClaim];
+		return Object.keys(this.resources).reduce(function(fulfillable, resourceID) {
+			return isValidClaim(tasks, taskID, resources, resourceID) ? fulfillable : false;
+		}, true);
+	}
+
+	//private method
+	isValidClaim(tasks, taskID, resources, resourceID) {
+		return tasks[taskID][resourceID]["needs"] <= resources[resourceID];
+	}
+
+	//private method
+	processRequest(taskID, resourceID, unitsRequested, action) {
+		if (this.isValidRequest(taskID, resourceID, unitsRequested)) {
+			this.handleValidRequest(taskID, resourceID, unitsRequested, action);
+		} else {
+			this.handleAbortion(taskID, "request");
+		}
+	}
+
+	//private method
+	isValidRequest(taskID, resourceID, unitsRequested) {
+		return unitsRequested <= this.tasks[taskID][resourceID]["needs"];
+	}
+
+	//private method
+	handleValidRequest(taskID, resourceID, unitsRequested, action) {
+		if (this.isFulfillableRequest(unitsRequested, resourceID)) {
+			this.handleFulfillableRequest(taskID, resourceID, unitsRequested, action);
+		} else {
+			this.rejectRequest(taskID, resourceID, unitsRequested);
+		}
+	}
+
+	//private method
+	handleFulfillableRequest(taskID, resourceID, unitsRequested, action) {
+		if (this.isSafeRequest(action)) {
+			this.approveRequest(taskID, resourceID, unitsRequested);
+		} else {
+			this.rejectRequest(taskID, resourceID, unitsRequested, "unsafe");
+		}
 	}
 
 	// private method
-	handleRequest(action) {
-
-		const taskID = action["taskID"];
-		const task = this.tasks[taskID];
-		const resourceID = action["resourceID"];
-		const unitsRequested = action["quantity"];
-		const delay = action["delay"];
-
-		if (delay > 0) {
-			task["delay"] = +delay;
-			action["delay"] -= 1;
-			task["status"] = "delayed";
-			this.handleDelay(taskID);
-		} else {
-			if (unitsRequested > task[resourceID]["needs"]) {
-				this.logger.log(`${this.curCycle}: Task #${taskID} aborted (requested more than needed)`);
-				this.abort(taskID);
-			} else if (unitsRequested <= this.resources[resourceID]) {
-				if (this.isSafeRequest(action)) {
-					this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
-					this.logger.log(`${this.curCycle}: Task #${taskID} granted ${unitsRequested} R${resourceID}`);
-				} else {
-					task["status"] = "blocked";
-					task["wait"] += 1;
-					this.logger.log(`${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID} (unsafe request)`);
-				}
-			} else {
-				task["status"] = "blocked";
-				task["wait"] += 1;
-				this.logger.log(`${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`);
-			}
-		}
-
-	}
-
-	// private method
-	isCompleteable(config) {
-
-		const resources = config["resources"];
-		const tasks = config["tasks"];
-		const taskID = config["taskID"];
+	isCompleteable(resources, tasks, taskID) {
 		const task = tasks[taskID];
 		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
 
@@ -94,7 +83,6 @@ class DijkstraBankerManager extends ResourceManager {
 		task["activities"].forEach(function(activity) {
 			if (activity["action"] === "request") {
 				requestsRemaining += 1;
-			} else {
 			}
 		});
 
@@ -103,7 +91,11 @@ class DijkstraBankerManager extends ResourceManager {
 		}
 
 		return(unsatisfiableNeeds === 0);
+	}
 
+	//private method
+	isFulfillableRequest(unitsRequested, resourceID) {
+		return unitsRequested <= this.resources[resourceID];
 	}
 
 	// private method
@@ -124,9 +116,10 @@ class DijkstraBankerManager extends ResourceManager {
 
 		const tasks = this.tasks;
 		const isCompleteable = this.isCompleteable;
+		const isValidClaim = this.isValidClaim;
 
 		Object.keys(potentialTasks).forEach(function(taskID) {
-			if (isCompleteable({"resources": potentialResources, "tasks": potentialTasks, taskID})) {
+			if (isCompleteable(potentialResources, potentialTasks, taskID)) {
 				numCompleteableTasks += 1;
 			}
 		});
