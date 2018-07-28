@@ -5,17 +5,14 @@ module.exports = {
 };
 
 function getConfig(args, test) {
-
 	const file = getFile(args[2]);
 	const showOutput = getShowOutput(args[3]);
-	const showConfiguration = test ? false : true;
 
 	if (!test) {
-		logConfiguration(file, showOutput);
+		reportConfiguration(file, showOutput);
 	}
 	
 	return {"file": file, "show_output": showOutput};
-	
 }
 
 // private method
@@ -29,13 +26,12 @@ function getShowOutput(arg) {
 }
 
 // private method
-function logConfiguration(file, showOutput) {
+function reportConfiguration(file, showOutput) {
+	const outputVersion = getOutputVersion(showOutput);
+	console.log(`\nFILE USED: ${file}\nOUTPUT VERSION: ${outputVersion}\n`);
+}
 
-	const outputVersion = (showOutput) ? "Detailed Output" : "Results Only";
-
-	console.log();
-	console.log(`FILE USED: ${file}`);
-	console.log(`OUTPUT VERSION: ${outputVersion}`);
-	console.log();
-
+// private method
+function getOutputVersion(output) {
+	return output ? "Detailed Output" : "Results Only";
 }
