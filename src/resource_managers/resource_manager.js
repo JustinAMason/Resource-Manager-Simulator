@@ -247,30 +247,28 @@ class ResourceManager {
 	// private method
 	updateResources() {
 
-		const resources = this.resources;
-		const pendingResources = this.pendingResources;
+		for (let i = 0; i < Object.keys(this.pendingResources).length; i++) {
+			const resourceID = Object.keys(this.pendingResources)[i];
+			this.resources[resourceID] += this.pendingResources[resourceID];
+		}
 
-		Object.keys(this.pendingResources).forEach(function(resourceID) {
-			resources[resourceID] += pendingResources[resourceID];
-		});
-
-		Object.keys(this.pendingResources).forEach(function(resourceID) {
-			pendingResources[resourceID] = 0;
-		});
+		for (let i = 0; i < Object.keys(this.pendingResources).length; i++) {
+			const resourceID = Object.keys(this.pendingResources)[i];
+			this.pendingResources[resourceID] = 0;
+		}
 
 	}
 
 	// private method
 	showResourcesAvailable() {
 
-		const resources = this.resources;
-
 		let output = "AVAILABLE: ";
-		Object.keys(this.resources).forEach(function(resourceID) {
-			output += output === "AVAILABLE: " ? "": ", ";
-			output += `R${resourceID} (${resources[resourceID]})`;
-		});
 
+		for (let i = 0; i < Object.keys(this.resources).length; i++) {
+			const resourceID = Object.keys(this.resources)[i];
+			output += output === "AVAILABLE: " ? "": ", ";
+			output += `R${resourceID} (${this.resources[resourceID]})`;
+		}
 		this.logger.log(output);
 		this.logger.logLine();
 		
@@ -320,14 +318,14 @@ class ResourceManager {
 	// private method
 	areResourcesPending() {
 
-		const pendingResources = this.pendingResources;
-
 		let numResourcesWithUnitsPending = 0;
-		Object.keys(this.pendingResources).forEach(function(resource) {
-			if (+pendingResources[resource] > 0) {
+
+		for (let i = 0; i < Object.keys(this.pendingResources); i++) {
+			const resource = Object.keys(this.pendingResources)[i];
+			if (+this.pendingResources[resource] > 0) {
 				numResourcesWithUnitsPending += 1;
 			}
-		});
+		}
 
 		if (numResourcesWithUnitsPending > 0) {
 			return(true);
