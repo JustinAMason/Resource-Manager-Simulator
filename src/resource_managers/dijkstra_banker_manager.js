@@ -20,14 +20,18 @@ class DijkstraBankerManager extends ResourceManager {
 
 	//private method
 	isFulfillableTask(taskID) {
-		const [tasks, resources, isValidClaim] = [this.tasks, this.resources, this.isValidClaim];
-		return Object.keys(this.resources).reduce(function(fulfillable, resourceID) {
-			return isValidClaim(tasks, taskID, resources, resourceID) ? fulfillable : false;
-		}, true);
+		let fulfillable = true;
+		for (let i = 0; i < Object.keys(this.resources).length; i++) {
+			const resourceID = Object.keys(this.resources)[i];
+			fulfillable = fulfillable && this.isValidClaim(taskID,resourceID);
+		}
+		return fulfillable;
 	}
 
 	//private method
-	isValidClaim(tasks, taskID, resources, resourceID) {
+	isValidClaim(taskID, resourceID, tasksGiven, resourcesGiven) {
+		const tasks = tasksGiven ? tasksGiven : this.tasks;
+		const resources = resourcesGiven ? resourcesGiven : this.resources;
 		return tasks[taskID][resourceID]["needs"] <= resources[resourceID];
 	}
 
@@ -64,36 +68,30 @@ class DijkstraBankerManager extends ResourceManager {
 	}
 
 	// private method
-	isCompleteable(resources, tasks, taskID) {
-		const task = tasks[taskID];
-		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
+	isCompleteable(potentialResources, potentialTasks, taskID) {
+		const resourceIDs = this.getResourceIDs(taskID);
 
-		const resourceIDs = Object.keys(task).filter(function(key) {
-			return !keysToIgnore.includes(key);
-		});
+		let completeable = true;
+		for (let i = 0; i < resourceIDs.length; i++) {
+			completeable = completeable && this.isValidClaim(taskID, resourceIDs[i], potentialTasks, potentialResources);
+		}
 
-		let unsatisfiableNeeds = 0;
-		resourceIDs.forEach(function(resourceID) {
-			if (resources[resourceID] < task[resourceID]["needs"]) {
-				unsatisfiableNeeds += 1;
-			}
-		});
-
-		let requestsRemaining = 0;
-		task["activities"].forEach(function(activity) {
-			if (activity["action"] === "request") {
-				requestsRemaining += 1;
-			}
-		});
-
-		return(unsatisfiableNeeds === 0 && requestsRemaining > 0);
+		return(completeable && this.requestsPending(potentialTasks[taskID]["activities"]));
 	}
 
-	// requestsPending(activities) {
-	// 	return activities.filter(function(numRequests, activity) {
-	// 		return activity["action"] === "request" ? numRequests + 1 : numRequests;
-	// 	}, 0);
-	// }
+	getResourceIDs(taskID) {
+		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
+		return Object.keys(this.tasks[taskID]).filter(function(key) {
+			return !keysToIgnore.includes(key);
+		});
+	}
+
+	//private method
+	requestsPending(activities) {
+		return activities.filter(function(numRequests, activity) {
+			return activity["action"] === "request" ? numRequests + 1 : numRequests;
+		}, 0);
+	}
 
 	//private method
 	isFulfillableRequest(unitsRequested, resourceID) {
@@ -102,34 +100,35 @@ class DijkstraBankerManager extends ResourceManager {
 
 	// private method
 	isSafeRequest(request) {
+		const [taskID, resourceID, quantity] = [request["taskID"], request["resourceID"], request["quantity"]];
+		const potentialResources = this.getPotentialResources(resourceID, quantity);
+		const potentialTasks = this.getPotentialTasks(taskID, resourceID, quantity);
 
-		const taskID = request["taskID"];
-		const resourceID = request["resourceID"];
-		const quantity = +request["quantity"];
-
-		const potentialResources = JSON.parse(JSON.stringify(this.resources));
-		potentialResources[resourceID] -= quantity;
-
-		const potentialTasks = JSON.parse(JSON.stringify(this.tasks));
-		potentialTasks[taskID][resourceID]["has"] = +potentialTasks[taskID][resourceID]["has"] + quantity;
-		potentialTasks[taskID][resourceID]["needs"] = +potentialTasks[taskID][resourceID]["needs"] - quantity;
-
-		let numCompleteableTasks = 0;
-
+		let safe = false;
 		for (let i = 0; i < Object.keys(potentialTasks).length; i++) {
 			const taskID = Object.keys(potentialTasks)[i];
-			if (this.isCompleteable(potentialResources, potentialTasks, taskID)) {
-				numCompleteableTasks += 1;
-			}
+			safe = safe || this.isCompleteable(potentialResources, potentialTasks, taskID);
 		}
-
-
-
-		return(numCompleteableTasks > 0);
-
+		
+		return(safe);
 	}
 
-	// private method
+	//private method
+	getPotentialResources(resourceID, unitsWaived) {
+		const potentialResources = JSON.parse(JSON.stringify(this.resources));
+		potentialResources[resourceID] -= unitsWaived;
+		return potentialResources;
+	}
+
+	//private method
+	getPotentialTasks(taskID, resourceID, unitsReceived) {
+		const potentialTasks = JSON.parse(JSON.stringify(this.tasks));
+		potentialTasks[taskID][resourceID]["has"] = +potentialTasks[taskID][resourceID]["has"] + unitsReceived;
+		potentialTasks[taskID][resourceID]["needs"] = +potentialTasks[taskID][resourceID]["needs"] - unitsReceived;
+		return(potentialTasks);
+	}
+
+	//private method
 	deadlocked() {
 		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0 && !this.areResourcesPending());
 	}
