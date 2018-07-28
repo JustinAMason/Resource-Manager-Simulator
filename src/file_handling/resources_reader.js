@@ -5,33 +5,31 @@ module.exports = {
 };
 
 function getResources(args) {
-	const file = args["file"];
-	const data = file_reader.readFile(file);
+	const data = file_reader.readFile(args["file"]);
 	const resourceData = getResourceData(data.split("\n"));
-	const config = getResourceConfig(resourceData);
-	return(config);
+	return getResourceConfig(resourceData);
 }
 
-// private method
-function getResourceData(data) {
-	const configRow = data[0];
-	const configVals = configRow.split(" ");
+//private method
+function getResourceData(fileData) {
+	const configVals = fileData[0].split(" ");
 	configVals.shift();
 	return(configVals);
 }
 
-// private method
-function getResourceConfig(data) {
-
-	let numResources = +data[0];
-	let resourceQuantity = +data[1];
-
-	const config = {};
+//private method
+function getResourceConfig(resourceData) {
+	const [numResources, resourceQuantity] = resourceData;
+	const resources = {};
 
 	for (let i = 1; i <= numResources; i++) {
-		config[i] = resourceQuantity;
+		addResource(resources, i, resourceQuantity);
 	}
+	
+	return resources;
+}
 
-	return(config);
-
+//private method
+function addResource(resources, resourceID, quantity) {
+	resources[resourceID] = +quantity;
 }
