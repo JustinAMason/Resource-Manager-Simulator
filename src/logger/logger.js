@@ -8,6 +8,8 @@ class Logger {
 		args = args ? args : {};
 		this.showOutput = args["show_output"] ? args["show_output"] : false;
 		this.lineLength = args["line_length"] ? args["line_length"] : 75;
+		this.headerCharacter = "=";
+		this.lineCharacter = "-";
 	}
 
 	log(output) {
@@ -19,25 +21,20 @@ class Logger {
 
 	logHeader(header) {
 		if (this.showOutput) {
-			const line = "=".repeat((this.lineLength - header.length) / 2);
+			const line = this.headerCharacter.repeat((this.lineLength - header.length) / 2);
 			let output = line + header.toUpperCase() + line;
-			if (output.length < this.lineLength) {
-				output += "=";
-			}
-			console.log(output);
-			console.log();
-		}
-	}
 
-	logHeaderBreak() {
-		if (this.showOutput) {
-			console.log("=".repeat(this.lineLength));
+			if (this.lineTooShort(line)) {
+				output += this.headerCharacter;
+			}
+
+			console.log(`${output}\n`);
 		}
 	}
 
 	logLine() {
 		if (this.showOutput) {
-			console.log("-".repeat(this.lineLength / 2));
+			console.log(this.lineCharacter.repeat(this.lineLength / 2));
 		}
 	}
 
@@ -45,6 +42,11 @@ class Logger {
 		if (this.showOutput) {
 			tasks_reader.showTasksState(tasks);
 		}
+	}
+
+	//private method
+	lineTooShort(line) {
+		return line.length < this.lineLength;
 	}
 
 };
