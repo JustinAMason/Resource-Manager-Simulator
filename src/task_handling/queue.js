@@ -12,7 +12,7 @@ class Queue {
 
 	remove() {
 		const taskID = this.queue[0];
-		if (this.queue.length > 0) {
+		if (!this.isEmpty()) {
 			this.queue.shift();
 			return taskID;
 		}
@@ -34,10 +34,6 @@ class Queue {
 
 	size() {
 		return(this.queue.length);
-	}
-
-	toString() {
-		console.log("" + this.queue);
 	}
 
 };
