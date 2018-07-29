@@ -1,4 +1,4 @@
-const Queue = require(__dirname + "/../task_handling/queue.js");
+const Queue = require("../task_handling/queue.js");
 module.exports =
 
 class ResourceManager {

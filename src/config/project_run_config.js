@@ -20,7 +20,7 @@ function getConfig(args, test) {
 // END public interface
 
 function getFile(arg) {
-	return(arg ? arg : path.resolve(__dirname, "../../sample_inputs/input-01.txt"));
+	return arg ? arg : "../../sample_inputs/input-01.txt";
 }
 
 function getShowOutput(arg) {

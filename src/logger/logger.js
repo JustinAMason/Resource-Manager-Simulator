@@ -1,4 +1,4 @@
-const tasks_reader = require(__dirname + "/../file_handling/tasks_reader.js");
+const tasks_reader = require("../file_handling/tasks_reader.js");
 
 module.exports =
 

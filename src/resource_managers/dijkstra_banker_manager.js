@@ -1,4 +1,4 @@
-const ResourceManager = require(__dirname + "/resource_manager.js");
+const ResourceManager = require("./resource_manager.js");
 
 module.exports =
 

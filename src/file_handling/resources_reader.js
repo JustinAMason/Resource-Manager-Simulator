@@ -1,4 +1,4 @@
-const file_reader = require(__dirname + "/file_reader.js");
+const file_reader = require("./file_reader.js");
 
 module.exports = {
 	getResources

@@ -1,12 +1,12 @@
-const projectRunConfig = require(__dirname + "/config/project_run_config.js");
+const projectRunConfig = require("./config/project_run_config");
 const copier = require("./copying/copier");
-const activities_reader = require(__dirname + "/file_handling/activities_reader.js");
-const resources_reader = require(__dirname + "/file_handling/resources_reader.js");
-const tasks_reader = require(__dirname + "/file_handling/tasks_reader.js");
-const Logger = require(__dirname + "/logger/logger.js");
-const BankerManager = require(__dirname + "/resource_managers/dijkstra_banker_manager.js");
-const OptimisticManager = require(__dirname + "/resource_managers/optimistic_manager.js");
-const Queue = require(__dirname + "/task_handling/queue.js");
+const activities_reader = require("./file_handling/activities_reader");
+const resources_reader = require("./file_handling/resources_reader");
+const tasks_reader = require("./file_handling/tasks_reader");
+const Logger = require("./logger/logger");
+const BankerManager = require("./resource_managers/dijkstra_banker_manager");
+const OptimisticManager = require("./resource_managers/optimistic_manager");
+const Queue = require("./task_handling/queue");
 
 runProgram();
 

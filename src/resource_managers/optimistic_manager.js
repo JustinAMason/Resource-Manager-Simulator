@@ -1,4 +1,4 @@
-const ResourceManager = require(__dirname + "/resource_manager.js");
+const ResourceManager = require("./resource_manager.js");
 
 module.exports =
 
@@ -28,5 +28,5 @@ class OptimisticManager extends ResourceManager {
 	deadlocked() {
 		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
 	}
-	
+
 };
