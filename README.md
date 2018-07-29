@@ -35,7 +35,7 @@ One of the valuable concepts that I have learned is that functions should be sma
 
 The reduction in function size, commonly an indicator of good design practice, is overwhelming. The original project contained a function that carried over 100 lines of code. The largest function in this refactoring pales in comparison, with just under 20 lines of code.
 
-Perhaps the strongest indicator of this adoption is the average length of a function. The original project had an average of 29 lines per function. This refactoring? Four.
+Perhaps the strongest indicator of this adoption is the average length of a function. The original project had an average of 29 lines per function. This refactoring? Four. This means that the average lines-of-code per function was reduced by over 85%!
 
 Overall, I have been very satisfied with the results of this refactoring. However, I would like to add that there is a reason this section begins with a "last updated" section: no one design is perfect. It is entirely possible that I will revisit this project and continue to refactor further. In fact, I hope this is the case: I really hope that I have so much more to learn.
 
