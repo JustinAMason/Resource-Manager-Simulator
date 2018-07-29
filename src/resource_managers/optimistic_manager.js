@@ -4,17 +4,19 @@ module.exports =
 
 class OptimisticManager extends ResourceManager {
 
+	// BEGIN public interface
+
 	constructor(config) {
 		super(config);
 		this.header = "Optimistic Resource Manager Simulation";
 	}
 
-	//private method
+	// END public interface
+
 	initiate(taskID) {
 		this.reportInitiation(taskID);
 	}
 
-	//private method
 	processRequest(taskID, resourceID, unitsRequested, unsafe) {
 		if (this.isFulfillableRequest(unitsRequested, resourceID)) {
 			this.approveRequest(taskID, resourceID, unitsRequested);
@@ -23,9 +25,8 @@ class OptimisticManager extends ResourceManager {
 		}
 	}
 
-	//private method
 	deadlocked() {
 		return(this.blockedQueue.size() > 0 && this.nonblockedQueue.size() === 0);
 	}
-
+	
 };

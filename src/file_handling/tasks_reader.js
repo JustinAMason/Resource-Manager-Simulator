@@ -4,6 +4,8 @@ module.exports = {
 	getTasks,
 };
 
+// BEGIN public interface
+
 function getTasks(args, test) {
 	const fileData = file_reader.readFile(args["file"], test);
 	const initiations = getInitiations(fileData.split("\n"));
@@ -11,38 +13,34 @@ function getTasks(args, test) {
 	return createTasks(numTasks, initiations);
 }
 
-//private method
+// END public interface
+
 function getInitiations(fileData) {
 	fileData.shift();
 	return getInitiationsInformation(getInitiationActivities(fileData));
 }
 
-//private method
 function getInitiationActivities(activities) {
 	return activities.filter(function(activity) {
 		return isInitiation(activity);
 	});
 }
 
-//private method
 function isInitiation(activity) {
 	const activityType = activity.split(" ")[0];
 	return activityType === "initiate";
 }
 
-//private method
 function getInitiationsInformation(initiationActivities) {
 	return initiationActivities.map(function(activity) {
 		return activity.split("  ")[1];
 	});
 }
 
-//private method
 function getNumTasks(data) {
 	return(+data[0][0]);
 }
 
-//private method
 function createTasks(numTasks, initiations) {
 	const tasks = initializeTasks(numTasks);
 
@@ -55,7 +53,6 @@ function createTasks(numTasks, initiations) {
 	return(tasks);
 }
 
-//private method
 function initializeTasks(numTasks) {
 	const tasks = {};
 	for (let taskID = 1; taskID <= numTasks; taskID++) {
@@ -64,12 +61,10 @@ function initializeTasks(numTasks) {
 	return(tasks);
 }
 
-//private method
 function initializeTask(tasks, taskID) {
 	tasks[taskID] = {};
 }
 
-//private method
 function addResource(tasks, taskID, resourceID, resourceClaim) {
 	tasks[taskID][resourceID] = {
 		"needs": +resourceClaim,
@@ -77,7 +72,6 @@ function addResource(tasks, taskID, resourceID, resourceClaim) {
 	};
 }
 
-//private method
 function fillTask(tasks, taskID) {
 	tasks[taskID]["activities"] = [];
 	tasks[taskID]["delay"] = 0;

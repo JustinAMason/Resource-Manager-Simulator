@@ -3,6 +3,8 @@ module.exports =
 
 class ResourceManager {
 
+	// BEGIN public interface
+
 	constructor(config) {
 		this.tasks = config["tasks"];
 		[this.resources, this.pendingResources] = [config["resources"], {}];
@@ -33,7 +35,8 @@ class ResourceManager {
 		}
 	}
 
-	// private method
+	// END public interface
+
 	runCycle() {
 		const taskID = this.queue.remove();
 		const activities = this.tasks[taskID]["activities"];
@@ -56,17 +59,14 @@ class ResourceManager {
 		this.updateStatus(taskID);
 	}
 
-	//private method
 	isTaskReadyForNextActivity(taskID) {
 		return this.tasks[taskID]["status"] !== "blocked" && this.tasks[taskID]["status"] !== "delayed";
 	}
 
-	//private method
 	reportInitiation(taskID) {
 		this.logger.log(`${this.curCycle}: Task #${taskID} initiated`);
 	}
 
-	// private method
 	request(action) {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
@@ -78,7 +78,6 @@ class ResourceManager {
 		}
 	}
 
-	// private method
 	handleRequest(action) {
 		const [taskID, resourceID, unitsRequested, delay] = [
 			action["taskID"], action["resourceID"], action["quantity"], action["delay"]
@@ -92,7 +91,6 @@ class ResourceManager {
 		}
 	}
 
-	// private method
 	release(action) {
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
@@ -104,7 +102,6 @@ class ResourceManager {
 		}
 	}
 
-	// private method
 	handleRelease(action) {
 		const [taskID, resourceID, unitsWaived, delay] = [action["taskID"], action["resourceID"], action["quantity"], action["delay"]];
 		const task = this.tasks[taskID];
@@ -120,24 +117,20 @@ class ResourceManager {
 		}
 	}
 
-	//private method
 	performRelease(task, taskID, resourceID, unitsWaived) {
 		this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsWaived});
 		this.logger.log(`${this.curCycle}: Task #${taskID} releases ${unitsWaived} R${resourceID}`);
 	}
 
-	//private method
 	rejectRelease(task, taskID, resourceID, unitsWaived) {
 		task["status"] = "blocked";
 		this.logger.log(`${this.curCycle}: Task #${taskID} cannot release ${unitsWaived} R${resourceID} (more than owned)`);
 	}
 
-	//private method
 	isValidRelease(taskID, resourceID, unitsWaived) {
 		return unitsWaived <= this.tasks[taskID][resourceID]["has"];
 	}
 
-	// private method
 	terminate(action) {
 		const taskID = action["taskID"];
 
@@ -149,7 +142,6 @@ class ResourceManager {
 		}
 	}
 
-	// private method
 	handleTermination(action) {
 		const [taskID, delay] = [action["taskID"], action["delay"]];
 
@@ -160,7 +152,6 @@ class ResourceManager {
 		}
 	}
 
-	//private method
 	terminateTask(taskID) {
 		this.tasks[taskID]["status"] = "terminated";
 		this.tasks[taskID]["time"] = this.curCycle;
@@ -171,14 +162,12 @@ class ResourceManager {
 		this.logger.log(`${this.curCycle}: Task #${taskID} has been terminated`);
 	}
 
-	// private method
 	abort(taskID) {
 		const task = this.tasks[taskID];
 		task["status"] = "aborted";
 		this.releaseResources(taskID);
 	}
 
-	// private method
 	handleDeadlock() {
 		const taskIDs = this.blockedQueue.getSortedTaskIDs();
 
@@ -190,14 +179,12 @@ class ResourceManager {
 		this.blockedQueue.set(taskIDs);
 	}
 
-	// private method
 	handleDelay(taskID) {
 		const task = this.tasks[taskID];
 		task["delay"] -= 1;
 		this.logger.log(`${this.curCycle}: Task #${taskID} delayed (${task["delay"]} cycle(s) left)`);
 	}
 
-	// private method
 	exchangeUnits(exchange) {
 		const [recipient, task, resourceID, quantity] = [exchange["recipient"], exchange["task"], exchange["resourceID"], +exchange["quantity"]];
 
@@ -208,14 +195,12 @@ class ResourceManager {
 		}
 	}
 
-	//private method
 	transferUnitsToTask(task, resourceID, quantity) {
 		task[resourceID]["has"] = +task[resourceID]["has"] + quantity;
 		task[resourceID]["needs"] = +task[resourceID]["needs"] - quantity;
 		this.resources[resourceID] = +this.resources[resourceID] - quantity;
 	}
 
-	//private method
 	transferUnitsFromTask(task, resourceID, quantity) {
 		task[resourceID]["has"] = +task[resourceID]["has"] - quantity;
 		task[resourceID]["needs"] = +task[resourceID]["needs"] + quantity;
@@ -223,7 +208,6 @@ class ResourceManager {
 		this.pendingResources[resourceID] += quantity;
 	}
 
-	// private method
 	releaseResources(taskID) {
 		const task = this.tasks[taskID];
 		const resourceIDs = this.getResourceIDs(taskID);
@@ -234,13 +218,11 @@ class ResourceManager {
 		}
 	}
 
-	// private method
 	updateResources() {
 		this.addPendingResources();
 		this.resetPendingResources();
 	}
 
-	//private method
 	addPendingResources() {
 		for (let i = 0; i < Object.keys(this.pendingResources).length; i++) {
 			const resourceID = Object.keys(this.pendingResources)[i];
@@ -248,7 +230,6 @@ class ResourceManager {
 		}
 	}
 
-	//private method
 	resetPendingResources() {
 		for (let i = 0; i < Object.keys(this.pendingResources).length; i++) {
 			const resourceID = Object.keys(this.pendingResources)[i];
@@ -256,7 +237,6 @@ class ResourceManager {
 		}
 	}
 
-	//private method
 	reportResourcesAvailability() {
 		let output = "AVAILABLE: ";
 		for (let i = 0; i < Object.keys(this.resources).length; i++) {
@@ -267,12 +247,10 @@ class ResourceManager {
 		this.logger.logLine();
 	}
 
-	//private method
 	reportResourceAvailability(resourceID) {
 		return `R${resourceID} (${this.resources[resourceID]})`;
 	}
 
-	// private method
 	updateStatus(taskID) {
 		const task = this.tasks[taskID];
 
@@ -281,34 +259,29 @@ class ResourceManager {
 		}
 	}
 
-	// private method
 	updateQueue() {
 		this.moveBlockedQueueToQueue();
 		this.moveNonBlockedQueueToQueue();
 	}
 
-	//private method
 	moveBlockedQueueToQueue() {
 		while (!this.blockedQueue.isEmpty()) {
 			this.queue.add(this.blockedQueue.remove());
 		}
 	}
 
-	//private method
 	moveNonBlockedQueueToQueue() {
 		while (!this.nonblockedQueue.isEmpty()) {
 			this.queue.add(this.nonblockedQueue.remove());
 		}
 	}
 
-	// private method
 	updateBlockedAndNonBlockedQueues(taskID) {
 		if (this.activitiesRemaining(this.tasks[taskID]["activities"])) {
 			this.addToAppropriateQueue(taskID, this.tasks[taskID]["status"]);
 		}
 	}
 
-	//private method
 	addToAppropriateQueue(taskID, status) {
 		switch (status) {
 			case "ready": this.nonblockedQueue.add(taskID); break;
@@ -318,12 +291,10 @@ class ResourceManager {
 		}
 	}
 
-	//private method
 	activitiesRemaining(activities) {
 		return activities.length > 0;
 	}
 
-	// private method
 	areResourcesPending() {
 		let pending = false;
 		for (let i = 0; i < Object.keys(this.pendingResources); i++) {
@@ -333,12 +304,10 @@ class ResourceManager {
 		return(pending);
 	}
 
-	//private method
 	isResourcePending(resource) {
 		return +resource > 0;
 	}
 
-	//private method
 	processDelay(taskID, activity, delay) {
 		this.tasks[taskID]["delay"] = +delay;
 		activity["delay"] -= 1;
@@ -346,49 +315,41 @@ class ResourceManager {
 		this.handleDelay(taskID, activity);
 	}
 
-	//private method
 	isDelayed(delay) {
 		return delay > 0;
 	}
 
-	//private method
 	approveRequest(taskID, resourceID, unitsRequested) {
 		const task = this.tasks[taskID];
 		this.exchangeUnits({"recipient": "task", task, resourceID, "quantity": unitsRequested});
 		this.reportRequestApproval(taskID, unitsRequested, resourceID);
 	}
 
-	//private method
 	reportRequestApproval(taskID, unitsRequested, resourceID) {
 		this.logger.log(`${this.curCycle}: Task #${taskID} granted ${unitsRequested} R${resourceID}`);
 	}
 
-	//private method
 	rejectRequest(taskID, resourceID, unitsRequested, unsafeRequest) {
 		this.tasks[taskID]["status"] = "blocked";
 		this.tasks[taskID]["wait"] += 1;
 		this.reportRequestRejection(taskID, unitsRequested, resourceID, unsafeRequest);
 	}
 
-	//private method
 	reportRequestRejection(taskID, unitsRequested, resourceID, unsafeRequest) {
 		let output = `${this.curCycle}: Task #${taskID} NOT granted ${unitsRequested} R${resourceID}`;
 		output += unsafeRequest ? " (unsafe request)" : "";
 		this.logger.log(output);
 	}
 
-	//private method
 	isFulfillableRequest(unitsRequested, resourceID) {
 		return unitsRequested <= this.resources[resourceID];
 	}
 
-	//private method
 	handleAbortion(taskID, context) {
 		this.abort(taskID);
 		this.reportAbortion(taskID, context);
 	}
 
-	//private method
 	reportAbortion(taskID, context) {
 		const messages = {
 			"initiation": `${this.curCycle}: Task #${taskID} aborted (impossible to fulfill)`,
@@ -398,7 +359,6 @@ class ResourceManager {
 		this.logger.log(messages[context]);
 	}
 
-	//private method
 	getResourceIDs(taskID) {
 		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
 		return Object.keys(this.tasks[taskID]).filter(function(key) {
@@ -406,14 +366,12 @@ class ResourceManager {
 		});
 	}
 
-	//private method
 	requestsPending(activities) {
 		return activities.filter(function(numRequests, activity) {
 			return activity["action"] === "request" ? numRequests + 1 : numRequests;
 		}, 0);
 	}
 
-	//private method
 	isFulfillableRequest(unitsRequested, resourceID) {
 		return unitsRequested <= this.resources[resourceID];
 	}

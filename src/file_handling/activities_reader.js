@@ -4,6 +4,8 @@ module.exports = {
 	addActivitiesToTasks
 };
 
+// BEGIN public interface
+
 function addActivitiesToTasks(args) {
 	const tasks = args["tasks"];
 	const data = file_reader.readFile(args["commandLineConfig"]["file"]);
@@ -11,7 +13,8 @@ function addActivitiesToTasks(args) {
 	return addActivities(tasks, activities);
 }
 
-// private method
+// END public interface
+
 function getActivities(activitiesLog) {
 	const activities = [];
 	let activityID = 1;
@@ -24,7 +27,6 @@ function getActivities(activitiesLog) {
 	return(activities);
 }
 
-//private method
 function getActivity(activityID, activityParts) {
 	const [action, taskID, delay, resourceID, quantity] = activityParts;
 	return {
@@ -37,31 +39,26 @@ function getActivity(activityID, activityParts) {
 	};
 }
 
-// private method
 function getActivityParts(activityString) {
 	return activityString.split(" ").filter(function(activityPart) {
 		return(activityPart !== "");
 	});
 }
 
-// private method
 function getActivitiesData(data) {
 	return data.filter(function(activity, index) {
 		return isValidActivity(getActivityType(activity), index);
 	});
 }
 
-//private method
 function isValidActivity(activityType, activityIndex) {
 	return activityType !== "" && activityIndex > 0;
 }
 
-// private method
 function getActivityType(activity) {
 	return activity.split(" ")[0];
 }
 
-//private method
 function addActivities(tasks, activities) {
 	activities.forEach(function(activity) {
 		addActivity(tasks, activity);
@@ -70,7 +67,6 @@ function addActivities(tasks, activities) {
 	return(tasks);
 }
 
-//private method
 function addActivity(tasks, activity) {
 	tasks[activity["taskID"]]["activities"].push(activity);
 }

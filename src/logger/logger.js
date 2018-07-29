@@ -4,6 +4,8 @@ module.exports =
 
 class Logger {
 
+	// BEGIN public interface
+
 	constructor(args) {
 		args = args ? args : {};
 		this.showOutput = args["show_output"] ? args["show_output"] : false;
@@ -38,7 +40,8 @@ class Logger {
 		}
 	}
 
-	//private method
+	// END public interface
+
 	lineTooShort(line) {
 		return line.length < this.lineLength;
 	}

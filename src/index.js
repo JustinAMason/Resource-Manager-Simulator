@@ -9,6 +9,8 @@ const Queue = require(__dirname + "/task_handling/queue.js");
 
 runProgram();
 
+// BEGIN public interface
+
 function runProgram() {
 	const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
 	const detailsLogger = new Logger(commandLineConfig);
@@ -27,7 +29,8 @@ function runProgram() {
 	reportResults([optimisticTasks, bankerTasks], ["Optimistic", "Dijkstra's Banker"]);
 }
 
-//private method
+// END public interface
+
 function copyObject(object, quantity) {
 	quantity = getCopyQuantity(quantity);
 
@@ -39,7 +42,6 @@ function copyObject(object, quantity) {
 	return(copies);
 }
 
-//private method
 function copyInstance(instance, instanceArgs, quantity) {
 	quantity = getCopyQuantity(quantity);
 
@@ -51,26 +53,22 @@ function copyInstance(instance, instanceArgs, quantity) {
 	return(copies);
 }
 
-//private method
 function getCopyQuantity(quantity) {
 	return quantity ? quantity : 1;
 }
 
-//private method
 function runManagers(managers) {
 	managers.forEach(function(manager) {
 		manager.run();
 	});
 }
 
-//private method
 function reportResults(tasksPerManager, manager_types) {
 	tasksPerManager.forEach(function(managerTasks, index) {
 		reportManagerResults(managerTasks, manager_types[index]);
 	});
 }
 
-//private method
 function reportManagerResults(tasks, manager_type) {
 	const resultsLogger = new Logger({"show_output": true});
 
@@ -84,7 +82,6 @@ function reportManagerResults(tasks, manager_type) {
 	reportManagerSummary(resultsLogger, getCompletionTime(tasks), countAbortions(tasks));
 }
 
-//private method
 function reportTaskResult(logger, tasks, taskID) {
 	if (isAbortion(tasks, taskID)) {
 		reportTaskAbortion(logger, taskID);
@@ -93,28 +90,23 @@ function reportTaskResult(logger, tasks, taskID) {
 	}
 }
 
-//private method
 function isAbortion(tasks, taskID) {
 	return tasks[taskID]["status"] === "aborted";
 }
 
-//private method
 function reportTaskAbortion(logger, taskID) {
 	logger.log(`Task #${taskID} was aborted.`);
 }
 
-//private method
 function reportTaskCompletion(logger, tasks, taskID) {
 	const waitPercentage = getWaitPercentage(tasks[taskID]["wait"], tasks[taskID]["time"]);
 	logger.log(`Task #${taskID} finished after ${tasks[taskID]["time"]} cycle(s). It waited for ${tasks[taskID]["wait"]} cycle(s) in total (${waitPercentage}%).`);
 }
 
-//private method
 function getWaitPercentage(waitTime, totalTime) {
 	return ((+waitTime / +totalTime) * 100).toFixed(0);
 }
 
-//private method
 function reportManagerSummary(logger, completionTime, numAbortions) {
 	logger.log();
 	logger.log(`This manager finished after ${completionTime} cycle(s).`);
@@ -123,14 +115,12 @@ function reportManagerSummary(logger, completionTime, numAbortions) {
 	logger.log();
 }
 
-//private method
 function getCompletionTime(tasks) {
 	return Object.keys(tasks).reduce(function(time, taskID) {
 		return Math.max(time, tasks[taskID]["time"]);
 	}, 0);
 }
 
-//private method
 function countAbortions(tasks) {
 	return Object.keys(tasks).reduce(function(count, taskID) {
 		return isAbortion(tasks, taskID) ? count + 1 : count;

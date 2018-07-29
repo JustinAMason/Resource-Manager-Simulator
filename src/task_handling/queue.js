@@ -2,6 +2,8 @@ module.exports =
 
 class Queue {
 
+	//BEGIN public interface
+
 	constructor(tasks) {
 		this.queue = tasks ? Object.keys(tasks) : [];
 	}
@@ -35,5 +37,7 @@ class Queue {
 	size() {
 		return(this.queue.length);
 	}
+
+	//END public interface
 
 };
