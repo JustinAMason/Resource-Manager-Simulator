@@ -79,25 +79,6 @@ class DijkstraBankerManager extends ResourceManager {
 		return(completeable && this.requestsPending(potentialTasks[taskID]["activities"]));
 	}
 
-	getResourceIDs(taskID) {
-		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
-		return Object.keys(this.tasks[taskID]).filter(function(key) {
-			return !keysToIgnore.includes(key);
-		});
-	}
-
-	//private method
-	requestsPending(activities) {
-		return activities.filter(function(numRequests, activity) {
-			return activity["action"] === "request" ? numRequests + 1 : numRequests;
-		}, 0);
-	}
-
-	//private method
-	isFulfillableRequest(unitsRequested, resourceID) {
-		return unitsRequested <= this.resources[resourceID];
-	}
-
 	// private method
 	isSafeRequest(request) {
 		const [taskID, resourceID, quantity] = [request["taskID"], request["resourceID"], request["quantity"]];

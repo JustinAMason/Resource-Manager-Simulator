@@ -4,24 +4,19 @@ module.exports =
 class ResourceManager {
 
 	constructor(config) {
-		this.resources = config["resources"];
-		this.pendingResources = {};
-		this.logger = config["detailsLogger"];
-		this.queue = config["queue"];
-		this.nonblockedQueue = new Queue();
-		this.blockedQueue = new Queue();
 		this.tasks = config["tasks"];
+		[this.resources, this.pendingResources] = [config["resources"], {}];
+		[this.queue, this.nonblockedQueue, this.blockedQueue] = [config["queue"], new Queue(), new Queue()];
+		this.logger = config["detailsLogger"];
 		this.curCycle = 0;
 	}
 
 	run() {
-
 		this.logger.logHeader(this.header);
 		this.logger.log();
 
 		while (!this.queue.isEmpty()) {
-
-			this.showResourcesAvailable();
+			this.reportResourcesAvailability();
 			
 			while (!this.queue.isEmpty()) {
 				this.runCycle();
@@ -32,28 +27,20 @@ class ResourceManager {
 			}
 
 			this.curCycle += 1;
-
 			this.updateQueue();
 			this.updateResources();
-
 			this.logger.log();
-
 		}
-
 	}
 
 	// private method
 	runCycle() {
-
 		const taskID = this.queue.remove();
-		const task = this.tasks[taskID];
-		const activities = task["activities"];
+		const activities = this.tasks[taskID]["activities"];
 		const activity = activities[0];
-
 		const action = activity["action"];
-
-		/* eslint-disable indent */
-		switch (action) {
+		
+		switch (action) { /* eslint-disable indent */
 			case "initiate": this.initiate(taskID); break;
 			case "request": this.request(activity); break;
 			case "release": this.release(activity); break;
@@ -61,13 +48,17 @@ class ResourceManager {
 			default: break;
 		}
 
-		if (task["status"] !== "blocked" && task["status"] !== "delayed") {
+		if (this.isTaskReadyForNextActivity(taskID)) {
 			activities.shift();
 		}
 
-		this.updateQueues(taskID);
+		this.updateBlockedAndNonBlockedQueues(taskID);
 		this.updateStatus(taskID);
+	}
 
+	//private method
+	isTaskReadyForNextActivity(taskID) {
+		return this.tasks[taskID]["status"] !== "blocked" && this.tasks[taskID]["status"] !== "delayed";
 	}
 
 	//private method
@@ -77,7 +68,6 @@ class ResourceManager {
 
 	// private method
 	request(action) {
-		
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
 
@@ -86,7 +76,6 @@ class ResourceManager {
 		} else {
 			this.handleRequest(action);
 		}
-
 	}
 
 	// private method
@@ -105,7 +94,6 @@ class ResourceManager {
 
 	// private method
 	release(action) {
-
 		const taskID = action["taskID"];
 		const task = this.tasks[taskID];
 
@@ -114,61 +102,73 @@ class ResourceManager {
 		} else {
 			this.handleRelease(action);
 		}
-
 	}
 
 	// private method
 	handleRelease(action) {
-
-		const taskID = action["taskID"];
+		const [taskID, resourceID, unitsWaived, delay] = [action["taskID"], action["resourceID"], action["quantity"], action["delay"]];
 		const task = this.tasks[taskID];
-		const resourceID = action["resourceID"];
-		const unitsWaived = action["quantity"];
-		const delay = action["delay"];
 
 		if (this.isDelayed(delay)) {
 			this.processDelay(taskID, action, delay);
 		} else {
-			if (unitsWaived <= task[resourceID]["has"]) {
-				this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsWaived});
-				this.logger.log(`${this.curCycle}: Task #${taskID} releases ${unitsWaived} R${resourceID}`);
+			if (this.isValidRelease(taskID, resourceID, unitsWaived)) {
+				this.performRelease(task, taskID, resourceID, unitsWaived);
 			} else {
-				task["status"] = "blocked";
-				this.logger.log(`${this.curCycle}: Task #${taskID} cannot release ${unitsWaived} R${resourceID} (more than owned)`);
+				this.rejectRelease(task, taskID, resourceID, unitsWaived);
 			}
 		}
+	}
 
+	//private method
+	performRelease(task, taskID, resourceID, unitsWaived) {
+		this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsWaived});
+		this.logger.log(`${this.curCycle}: Task #${taskID} releases ${unitsWaived} R${resourceID}`);
+	}
+
+	//private method
+	rejectRelease(task, taskID, resourceID, unitsWaived) {
+		task["status"] = "blocked";
+		this.logger.log(`${this.curCycle}: Task #${taskID} cannot release ${unitsWaived} R${resourceID} (more than owned)`);
+	}
+
+	//private method
+	isValidRelease(taskID, resourceID, unitsWaived) {
+		return unitsWaived <= this.tasks[taskID][resourceID]["has"];
 	}
 
 	// private method
 	terminate(action) {
-
 		const taskID = action["taskID"];
-		const task = this.tasks[taskID];
 
-		if (task["status"] === "delayed") {
-			this.handleDelay(task);
+		if (this.tasks[taskID]["status"] === "delayed") {
+			this.handleDelay(this.tasks[taskID]);
 		} else {
 			this.releaseResources(taskID);
 			this.handleTermination(action);
 		}
-
 	}
 
 	// private method
 	handleTermination(action) {
-		const taskID = action["taskID"];
-		const task = this.tasks[taskID];
-		const delay = action["delay"];
+		const [taskID, delay] = [action["taskID"], action["delay"]];
 
 		if (this.isDelayed(delay)) {
 			this.processDelay(taskID, action, delay);
 		} else {
-			task["status"] = "terminated";
-			task["time"] = this.curCycle;
-			this.logger.log(`${this.curCycle}: Task #${taskID} has been terminated`);
+			this.terminateTask(taskID);
 		}
+	}
 
+	//private method
+	terminateTask(taskID) {
+		this.tasks[taskID]["status"] = "terminated";
+		this.tasks[taskID]["time"] = this.curCycle;
+		this.reportTermination(taskID);
+	}
+
+	reportTermination(taskID) {
+		this.logger.log(`${this.curCycle}: Task #${taskID} has been terminated`);
 	}
 
 	// private method
@@ -180,7 +180,6 @@ class ResourceManager {
 
 	// private method
 	handleDeadlock() {
-
 		const taskIDs = this.blockedQueue.getSortedTaskIDs();
 
 		while (taskIDs.length > 1) {
@@ -189,7 +188,6 @@ class ResourceManager {
 		}
 
 		this.blockedQueue.set(taskIDs);
-
 	}
 
 	// private method
@@ -201,138 +199,143 @@ class ResourceManager {
 
 	// private method
 	exchangeUnits(exchange) {
-
-		const recipient = exchange["recipient"];
-		const task = exchange["task"];
-		const resourceID = exchange["resourceID"];
-		const quantity = +exchange["quantity"];
+		const [recipient, task, resourceID, quantity] = [exchange["recipient"], exchange["task"], exchange["resourceID"], +exchange["quantity"]];
 
 		if (recipient === "task") {
-			task[resourceID]["has"] = +task[resourceID]["has"] + quantity;
-			task[resourceID]["needs"] = +task[resourceID]["needs"] - quantity;
-			this.resources[resourceID] = +this.resources[resourceID] - quantity;
+			this.transferUnitsToTask(task, resourceID, quantity);
 		} else if (recipient === "manager") {
-
-			task[resourceID]["has"] = +task[resourceID]["has"] - quantity;
-			task[resourceID]["needs"] = +task[resourceID]["needs"] + quantity;
-
-			if (!this.pendingResources[resourceID]) {
-				this.pendingResources[resourceID] = 0;
-			}
-
-			this.pendingResources[resourceID] += quantity;
-
+			this.transferUnitsFromTask(task, resourceID, quantity);
 		}
+	}
 
+	//private method
+	transferUnitsToTask(task, resourceID, quantity) {
+		task[resourceID]["has"] = +task[resourceID]["has"] + quantity;
+		task[resourceID]["needs"] = +task[resourceID]["needs"] - quantity;
+		this.resources[resourceID] = +this.resources[resourceID] - quantity;
+	}
+
+	//private method
+	transferUnitsFromTask(task, resourceID, quantity) {
+		task[resourceID]["has"] = +task[resourceID]["has"] - quantity;
+		task[resourceID]["needs"] = +task[resourceID]["needs"] + quantity;
+		this.pendingResources[resourceID] = this.pendingResources[resourceID] ? this.pendingResources[resourceID] : 0;
+		this.pendingResources[resourceID] += quantity;
 	}
 
 	// private method
 	releaseResources(taskID) {
-
 		const task = this.tasks[taskID];
-		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
-
-		const resourceIDs = Object.keys(task).filter(function(key) {
-			return !keysToIgnore.includes(key);
-		});
+		const resourceIDs = this.getResourceIDs(taskID);
 
 		for (let i = 0; i < resourceIDs.length; i++) {
 			const resourceID = resourceIDs[i];
-			const unitsToRelease = task[resourceID]["has"];
-			this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": unitsToRelease});
+			this.exchangeUnits({"recipient": "manager", task, resourceID, "quantity": task[resourceID]["has"]});
 		}
-
 	}
 
 	// private method
 	updateResources() {
+		this.addPendingResources();
+		this.resetPendingResources();
+	}
 
+	//private method
+	addPendingResources() {
 		for (let i = 0; i < Object.keys(this.pendingResources).length; i++) {
 			const resourceID = Object.keys(this.pendingResources)[i];
 			this.resources[resourceID] += this.pendingResources[resourceID];
 		}
+	}
 
+	//private method
+	resetPendingResources() {
 		for (let i = 0; i < Object.keys(this.pendingResources).length; i++) {
 			const resourceID = Object.keys(this.pendingResources)[i];
 			this.pendingResources[resourceID] = 0;
 		}
-
 	}
 
-	// private method
-	showResourcesAvailable() {
-
+	//private method
+	reportResourcesAvailability() {
 		let output = "AVAILABLE: ";
-
 		for (let i = 0; i < Object.keys(this.resources).length; i++) {
 			const resourceID = Object.keys(this.resources)[i];
-			output += output === "AVAILABLE: " ? "": ", ";
-			output += `R${resourceID} (${this.resources[resourceID]})`;
+			output += this.reportResourceAvailability(resourceID);
 		}
 		this.logger.log(output);
 		this.logger.logLine();
-		
+	}
+
+	//private method
+	reportResourceAvailability(resourceID) {
+		return `R${resourceID} (${this.resources[resourceID]})`;
 	}
 
 	// private method
 	updateStatus(taskID) {
-
 		const task = this.tasks[taskID];
 
 		if (task["status"] !== "terminated" && task["status"] !== "aborted") {
 			task["status"] = task["delay"] === 0 ? "ready" : "blocked";
 		}
-
 	}
 
 	// private method
 	updateQueue() {
+		this.moveBlockedQueueToQueue();
+		this.moveNonBlockedQueueToQueue();
+	}
 
+	//private method
+	moveBlockedQueueToQueue() {
 		while (!this.blockedQueue.isEmpty()) {
 			this.queue.add(this.blockedQueue.remove());
 		}
+	}
 
+	//private method
+	moveNonBlockedQueueToQueue() {
 		while (!this.nonblockedQueue.isEmpty()) {
 			this.queue.add(this.nonblockedQueue.remove());
 		}
-
 	}
 
 	// private method
-	updateQueues(taskID) {
-
-		const task = this.tasks[taskID];
-		const activities = task["activities"];
-
-		if (!activities.length == 0) {
-			switch (task["status"]) {
-				case "ready": this.nonblockedQueue.add(taskID); break;
-				case "delayed": this.nonblockedQueue.add(taskID); break;
-				case "blocked": this.blockedQueue.add(taskID); break;
-				default: break;
-			}
+	updateBlockedAndNonBlockedQueues(taskID) {
+		if (this.activitiesRemaining(this.tasks[taskID]["activities"])) {
+			this.addToAppropriateQueue(taskID, this.tasks[taskID]["status"]);
 		}
+	}
 
+	//private method
+	addToAppropriateQueue(taskID, status) {
+		switch (status) {
+			case "ready": this.nonblockedQueue.add(taskID); break;
+			case "delayed": this.nonblockedQueue.add(taskID); break;
+			case "blocked": this.blockedQueue.add(taskID); break;
+			default: break;
+		}
+	}
+
+	//private method
+	activitiesRemaining(activities) {
+		return activities.length > 0;
 	}
 
 	// private method
 	areResourcesPending() {
-
-		let numResourcesWithUnitsPending = 0;
-
+		let pending = false;
 		for (let i = 0; i < Object.keys(this.pendingResources); i++) {
-			const resource = Object.keys(this.pendingResources)[i];
-			if (+this.pendingResources[resource] > 0) {
-				numResourcesWithUnitsPending += 1;
-			}
+			pending = pending || this.isResourcePending(Object.keys(this.pendingResources)[i]);
 		}
 
-		if (numResourcesWithUnitsPending > 0) {
-			return(true);
-		}
+		return(pending);
+	}
 
-		return(false);
-
+	//private method
+	isResourcePending(resource) {
+		return +resource > 0;
 	}
 
 	//private method
@@ -393,6 +396,26 @@ class ResourceManager {
 			"deadlock": `${this.curCycle}: DEADLOCK! Task #${taskID} aborted`
 		};
 		this.logger.log(messages[context]);
+	}
+
+	//private method
+	getResourceIDs(taskID) {
+		const keysToIgnore = ["activities", "delay", "time", "wait", "status"];
+		return Object.keys(this.tasks[taskID]).filter(function(key) {
+			return !keysToIgnore.includes(key);
+		});
+	}
+
+	//private method
+	requestsPending(activities) {
+		return activities.filter(function(numRequests, activity) {
+			return activity["action"] === "request" ? numRequests + 1 : numRequests;
+		}, 0);
+	}
+
+	//private method
+	isFulfillableRequest(unitsRequested, resourceID) {
+		return unitsRequested <= this.resources[resourceID];
 	}
 
 };
