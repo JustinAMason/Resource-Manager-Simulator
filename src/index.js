@@ -1,4 +1,5 @@
 const projectRunConfig = require(__dirname + "/config/project_run_config.js");
+const copier = require("./copying/copier");
 const activities_reader = require(__dirname + "/file_handling/activities_reader.js");
 const resources_reader = require(__dirname + "/file_handling/resources_reader.js");
 const tasks_reader = require(__dirname + "/file_handling/tasks_reader.js");
@@ -15,13 +16,13 @@ function runProgram() {
 	const commandLineConfig = projectRunConfig.getConfig(process.argv); //eslint-disable-line
 	const detailsLogger = new Logger(commandLineConfig);
 	const resources = resources_reader.getResources(commandLineConfig);
-	const [optimisticTasks, bankerTasks] = copyObject(
+	const [optimisticTasks, bankerTasks] = copier.copyObject(
 		activities_reader.addActivitiesToTasks(
 			{ commandLineConfig, "tasks": tasks_reader.getTasks(commandLineConfig) }
 		),
 		2
 	);
-	const [optimisticQueue, bankerQueue] = copyInstance(Queue, optimisticTasks, 2);
+	const [optimisticQueue, bankerQueue] = copier.copyInstance(Queue, optimisticTasks, 2);
 	const optimisticManager = new OptimisticManager({detailsLogger, resources, "queue": optimisticQueue, "tasks": optimisticTasks});
 	const bankerManager = new BankerManager({detailsLogger, resources, "queue": bankerQueue, "tasks": bankerTasks});
 
@@ -30,32 +31,6 @@ function runProgram() {
 }
 
 // END public interface
-
-function copyObject(object, quantity) {
-	quantity = getCopyQuantity(quantity);
-
-	const copies = [];
-	for (let i = 0; i < quantity; i++) {
-		copies.push(JSON.parse(JSON.stringify(object)));
-	}
-
-	return(copies);
-}
-
-function copyInstance(instance, instanceArgs, quantity) {
-	quantity = getCopyQuantity(quantity);
-
-	const copies = [];
-	for (let i = 0; i < quantity; i++) {
-		copies.push(new instance(instanceArgs));
-	}
-
-	return(copies);
-}
-
-function getCopyQuantity(quantity) {
-	return quantity ? quantity : 1;
-}
 
 function runManagers(managers) {
 	managers.forEach(function(manager) {
