@@ -10,7 +10,7 @@ After realizing that I was at a Jon Snow-level of knowing nothing, I ended up ab
 
 Just kidding. I geared much of my focus during my internship towards learning better practices of programmming, and read Sandi Metz's *Practical Object-Oriented Design in Ruby*.
 
-I wanted to put this newfound wealth of knowledge to the test, and see just how much I have improved. Fortunately, I found a past lab assignment from *Operating Systems* that was a perfect candidate. Fore more information on the subject of the project itself, you can view the [original project repository here](https://github.com/JustinAMason/Operating-Systems-Labs/tree/master/Lab%2003%20(Banker's%20Algorithm)).
+I wanted to put this newfound wealth of knowledge to the test, and see just how much I have improved. Fortunately, I found a past lab assignment from *Operating Systems* that was a perfect candidate. For more information on the subject of the project itself, you can view the [original project repository here](https://github.com/JustinAMason/Operating-Systems-Labs/tree/master/Lab%2003%20(Banker's%20Algorithm)).
 
 ## Purpose
 
